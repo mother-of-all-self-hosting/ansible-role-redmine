@@ -1,0 +1,72 @@
+---
+- name: Ensure redmine paths exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: "{{ redmine_uid }}"
+    group: "{{ redmine_gid }}"
+  with_items:
+    - "{{ redmine_base_path }}"
+    - "{{ redmine_data_path }}"
+    - "{{ redmine_config_path }}"
+    - "{{ redmine_files_path }}"
+    - "{{ redmine_plugins_path }}"
+    - "{{ redmine_plugin_assets_path }}"
+    - "{{ redmine_theme_path }}"
+
+- name: Ensure redmine support files created
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ redmine_base_path }}/{{ item }}"
+    mode: 0640
+    owner: "{{ redmine_uid }}"
+    group: "{{ redmine_gid }}"
+  with_items:
+    - labels
+
+- name: Ensure redmine configuration.yml created
+  ansible.builtin.copy:
+    content: "{{ redmine_configuration | to_nice_yaml(indent=2) }}"
+    dest: "{{ redmine_config_path }}/configuration.yml"
+    mode: 0640
+    owner: "{{ redmine_uid }}"
+    group: "{{ redmine_gid }}"
+
+- name: Ensure other redmine configuration files created
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/config/{{ item }}.j2"
+    dest: "{{ redmine_config_path }}/{{ item }}"
+    mode: 0640
+    owner: "{{ redmine_uid }}"
+    group: "{{ redmine_gid }}"
+  with_items:
+    - database.yml
+    - secrets.yml
+    - secret_token.rb
+
+- name: Ensure db schema file exists
+  ansible.builtin.file:
+    path: "{{ redmine_config_path }}/db_schema.rb"
+    state: touch
+    mode: 0640
+    owner: "{{ redmine_uid }}"
+    group: "{{ redmine_gid }}"
+
+- name: Ensure redmine container image is pulled
+  community.docker.docker_image:
+    name: "{{ redmine_container_image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+    force_source: "{{ redmine_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
+    force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else redmine_container_image_force_pull }}"
+
+- name: Ensure redmine container network is created
+  community.general.docker_network:
+    name: "{{ redmine_container_network }}"
+    driver: bridge
+
+- name: Ensure redmine systemd service is present
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/systemd/redmine.service.j2"
+    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}.service"
+    mode: 0644

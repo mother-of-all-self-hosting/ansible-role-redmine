@@ -1,0 +1,34 @@
+{% if redmine_container_labels_traefik_enabled %}
+traefik.enable=true
+
+{% if redmine_container_labels_traefik_docker_network %}
+traefik.docker.network={{ redmine_container_labels_traefik_docker_network }}
+{% endif %}
+
+{% set middlewares = [] %}
+
+{% if redmine_container_labels_traefik_additional_response_headers.keys() | length > 0 %}
+{% for name, value in redmine_container_labels_traefik_additional_response_headers.items() %}
+traefik.http.middlewares.{{ redmine_identifier }}-add-headers.headers.customresponseheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [redmine_identifier + '-add-headers'] %}
+{% endif %}
+
+traefik.http.routers.{{ redmine_identifier }}.rule={{ redmine_container_labels_traefik_rule }}
+{% if redmine_container_labels_traefik_priority | int > 0 %}
+traefik.http.routers.{{ redmine_identifier }}.priority={{ redmine_container_labels_traefik_priority }}
+{% endif %}
+traefik.http.routers.{{ redmine_identifier }}.service={{ redmine_identifier }}
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ redmine_identifier }}.middlewares={{ middlewares | join(',') }}
+{% endif %}
+traefik.http.routers.{{ redmine_identifier }}.entrypoints={{ redmine_container_labels_traefik_entrypoints }}
+traefik.http.routers.{{ redmine_identifier }}.tls={{ redmine_container_labels_traefik_tls | to_json }}
+{% if redmine_container_labels_traefik_tls %}
+traefik.http.routers.{{ redmine_identifier }}.tls.certResolver={{ redmine_container_labels_traefik_tls_certResolver }}
+{% endif %}
+
+traefik.http.services.{{ redmine_identifier }}.loadbalancer.server.port={{ redmine_config_virtual_port }}
+{% endif %}
+
+{{ redmine_container_labels_additional_labels }}

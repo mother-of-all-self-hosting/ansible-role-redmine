@@ -1,0 +1,25 @@
+---
+- name: Fail if required redmine settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`).
+  when: "vars[item] == ''"
+  with_items:
+    - redmine_hostname
+    - redmine_uid
+    - redmine_gid
+
+- name: Fail if redmine database type invalid
+  ansible.builtin.fail:
+    msg: >-
+      redmine_database_type must be 'postgresql' or 'sqlite3'
+  when: "redmine_database_type not in ['postgresql', 'sqlite3']"
+
+- name: Fail if required redmine + Postgres integration settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `postgres`
+  when: "redmine_database_type == 'postgres' and vars[item] == ''"
+  with_items:
+    - redmine_database_username
+    - redmine_database_password
