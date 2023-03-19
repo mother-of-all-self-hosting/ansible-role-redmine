@@ -41,7 +41,7 @@ redmine_database_type: postgresql
 redmine_database_hostname: ''
 redmine_database_port: 5432
 redmine_database_name: redmine
-redmine_database_username: ''
+redmine_database_username: redmine
 redmine_database_password: ''
 
 # Configuration parameters seen below are documented here:
