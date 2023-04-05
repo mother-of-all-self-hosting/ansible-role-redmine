@@ -14,8 +14,6 @@ Type=oneshot
 Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ redmine_identifier }} \
-	rake redmine:send_reminders \
-	--days={{ redmine_reminders_days }} \
-	RAILS_ENV="production"
+	rake redmine:send_reminders days={{ redmine_reminders_days }} RAILS_ENV="production"
 
 SyslogIdentifier={{ redmine_identifier }}-send-reminders
