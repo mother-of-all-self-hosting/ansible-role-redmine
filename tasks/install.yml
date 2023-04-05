@@ -65,8 +65,12 @@
     name: "{{ redmine_container_network }}"
     driver: bridge
 
-- name: Ensure redmine systemd service is present
+- name: Ensure redmine systemd units are present
   ansible.builtin.template:
-    src: "{{ role_path }}/templates/systemd/redmine.service.j2"
-    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}.service"
+    src: "{{ role_path }}/templates/systemd/redmine{{ item }}.j2"
+    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}{{ item }}"
     mode: 0644
+  with_items:
+    - .service
+    - -send-reminders.service
+    - -send-reminders.timer

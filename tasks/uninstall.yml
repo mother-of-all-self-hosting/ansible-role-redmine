@@ -7,19 +7,27 @@
 
 - when: redmine_service_stat.stat.exists | bool
   block:
-    - name: Ensure redmine systemd service is stopped
+    - name: Ensure redmine systemd unites are stopped
       ansible.builtin.service:
-        name: "{{ redmine_identifier }}"
+        name: "{{ item }}"
         state: stopped
         enabled: false
         daemon_reload: true
+      with_items:
+        - "{{ redmine_identifier }}.service"
+        - "{{ redmine_identifier }}-send-reminders.service"
+        - "{{ redmine_identifier }}-send-reminders.timer"
 
     - name: Ensure redmine data removed
       ansible.builtin.file:
         path: "{{ redmine_base_path }}"
         state: absent
 
-    - name: Ensure redmine systemd service does not exists
+    - name: Ensure redmine systemd units do not exists
       ansible.builtin.file:
-        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}.service"
+        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ item }}"
         state: absent
+      with_items:
+        - "{{ redmine_identifier }}.service"
+        - "{{ redmine_identifier }}-send-reminders.service"
+        - "{{ redmine_identifier }}-send-reminders.timer"

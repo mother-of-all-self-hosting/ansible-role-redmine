@@ -1,0 +1,10 @@
+#jinja2: lstrip_blocks: "True"
+[Unit]
+Description=redmine send reminders ({{ redmine_identifier }}-send-reminders)
+
+[Timer]
+Unit={{ redmine_identifier }}-send-reminders.service
+OnCalendar={{ redmine_reminders_schedule }}
+
+[Install]
+WantedBy=timers.target

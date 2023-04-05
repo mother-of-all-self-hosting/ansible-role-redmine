@@ -44,6 +44,14 @@ redmine_database_name: redmine
 redmine_database_username: redmine
 redmine_database_password: ''
 
+# Redmine reminders
+# https://www.redmine.org/projects/redmine/wiki/RedmineReminderEmails
+# systemd onCalendar schedule
+redmine_reminders_schedule: "*-*-* 07:00:00"
+
+# number of days to remind abou
+redmine_reminders_days: 7
+
 # Configuration parameters seen below are documented here:
 # https://github.com/redmine/redmine/blob/master/config/configuration.yml.example
 
