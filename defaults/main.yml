@@ -52,6 +52,13 @@ redmine_reminders_schedule: "*-*-* 07:00:00"
 # number of days to remind abou
 redmine_reminders_days: 7
 
+# Redmine Recurring Tasks
+# https://github.com/southbridgeio/redmine_recurring_tasks
+redmine_recurring_tasks_enabled: false
+
+# systemd onCalendar schedule
+redmine_recurring_tasks_schedule: "*:0/5"
+
 # Configuration parameters seen below are documented here:
 # https://github.com/redmine/redmine/blob/master/config/configuration.yml.example
 

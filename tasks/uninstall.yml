@@ -18,6 +18,17 @@
         - "{{ redmine_identifier }}-send-reminders.service"
         - "{{ redmine_identifier }}-send-reminders.timer"
 
+    - name: Ensure redmine recurring tasks systemd unites are stopped
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+        daemon_reload: true
+      when: redmine_recurring_tasks_enabled | bool
+      with_items:
+        - "{{ redmine_identifier }}-recurring-tasks.service"
+        - "{{ redmine_identifier }}-recurring-tasks.timer"
+
     - name: Ensure redmine data removed
       ansible.builtin.file:
         path: "{{ redmine_base_path }}"
@@ -31,3 +42,5 @@
         - "{{ redmine_identifier }}.service"
         - "{{ redmine_identifier }}-send-reminders.service"
         - "{{ redmine_identifier }}-send-reminders.timer"
+        - "{{ redmine_identifier }}-recurring-tasks.service"
+        - "{{ redmine_identifier }}-recurring-tasks.timer"

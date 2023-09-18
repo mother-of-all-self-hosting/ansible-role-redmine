@@ -1,0 +1,19 @@
+#jinja2: lstrip_blocks: "True"
+[Unit]
+Description=redmine recurring tasks ({{ redmine_identifier }}-recurring-tasks)
+{% for service in redmine_systemd_required_systemd_services_list %}
+Requires={{ service }}
+After={{ service }}
+{% endfor %}
+Requires={{ redmine_identifier }}.service
+After={{ redmine_identifier }}.service
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
+
+ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ redmine_identifier }} \
+	rake redmine_recurring_tasks:exec RAILS_ENV="production"
+
+SyslogIdentifier={{ redmine_identifier }}-recurring-tasks

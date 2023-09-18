@@ -74,3 +74,13 @@
     - .service
     - -send-reminders.service
     - -send-reminders.timer
+
+- name: Ensure redmine recurring tasks systemd units are present
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/systemd/redmine{{ item }}.j2"
+    dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}{{ item }}"
+    mode: 0644
+  when: redmine_recurring_tasks_enabled | bool
+  with_items:
+    - -recurring-tasks.service
+    - -recurring-tasks.timer
