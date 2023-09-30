@@ -5,7 +5,7 @@ redmine_enabled: true
 
 redmine_identifier: redmine
 
-redmine_version: 5.0.5
+redmine_version: 5.0.6
 
 # The fully-qualified name of your redmine server (e.g. `redmine.example.com`)
 redmine_hostname: ''
