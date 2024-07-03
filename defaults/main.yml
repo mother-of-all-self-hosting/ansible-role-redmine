@@ -6,13 +6,14 @@ redmine_enabled: true
 redmine_identifier: redmine
 
 redmine_version: 5.1.3
+redmine_distro: alpine
 
 # The fully-qualified name of your redmine server (e.g. `redmine.example.com`)
 redmine_hostname: ''
 
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"
 redmine_container_image_registry_prefix: docker.io/
-redmine_container_image_tag: "{{ redmine_version }}-alpine"
+redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
 redmine_container_image_force_pull: "{{ redmine_container_image.endswith(':latest') }}"
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
