@@ -40,7 +40,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
 			{% for arg in redmine_container_extra_arguments %}
 			{{ arg }} \
 			{% endfor %}
-			{{ redmine_container_image }}
+			{{ redmine_container_image_final }}
 
 {% for network in redmine_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ redmine_identifier }}

@@ -1,19 +1,38 @@
 ---
-- name: Ensure redmine paths exist
+
+- name: Ensure redmine paths exists
   ansible.builtin.file:
-    path: "{{ item }}"
-    state: directory
-    mode: 0750
+    path: "{{ item.path }}"
+    state: "{{ item.state }}"
+    mode: 0700
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
   with_items:
-    - "{{ redmine_base_path }}"
-    - "{{ redmine_data_path }}"
-    - "{{ redmine_config_path }}"
-    - "{{ redmine_files_path }}"
-    - "{{ redmine_plugins_path }}"
-    - "{{ redmine_plugin_assets_path }}"
-    - "{{ redmine_theme_path }}"
+    - path: "{{ redmine_base_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_data_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_config_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_files_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_plugins_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_plugin_assets_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_theme_path }}"
+      state: directory
+      when: true
+    - path: "{{ redmine_customized_container_src_path }}"
+      state: directory
+      when: "{{ redmine_container_image_customizations_enabled }}"
+  when: item.when | bool
 
 - name: Ensure redmine support files created
   ansible.builtin.template:
@@ -59,6 +78,27 @@
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
     force_source: "{{ redmine_container_image_force_pull if ansible_version.major > 2 or ansible_version.minor >= 8 else omit }}"
     force: "{{ omit if ansible_version.major > 2 or ansible_version.minor >= 8 else redmine_container_image_force_pull }}"
+
+- when: "redmine_container_image_customizations_enabled | bool"
+  block:
+    - name: Ensure redmine Dockerfile is created
+      ansible.builtin.template:
+        src: "{{ role_path }}/templates/customizations/Dockerfile.j2"
+        dest: "{{ redmine_customized_container_src_path }}/Dockerfile"
+        owner: "{{ redmine_uid }}"
+        group: "{{ redmine_gid }}"
+        mode: 0640
+      register: redmine_container_image_customizations_dockerfile_result
+
+    - name: Ensure customized container image for redmine is built
+      community.docker.docker_image:
+        name: "{{ redmine_container_image_customized }}"
+        source: build
+        force_source: "{{ redmine_container_image_customizations_dockerfile_result.changed }}"
+        build:
+          dockerfile: Dockerfile
+          path: "{{ redmine_customized_container_src_path }}"
+          pull: true
 
 - name: Ensure redmine container network is created
   community.general.docker_network:

@@ -1,0 +1,11 @@
+FROM {{ redmine_container_image }}
+
+{% if redmine_container_image_customizations_build_tools_installation_enabled %}
+{% if redmine_distro.startswith('alpine') %}
+RUN apk add --no-cache {{ redmine_container_image_customizations_build_tools_installation_packages | join(' ') }}
+{% else %}
+RUN apt -y update && apt -y install {{ redmine_container_image_customizations_build_tools_installation_packages | join(' ') }}
+{% endif %}
+{% endif %}
+
+{{ redmine_container_image_customizations_dockerfile_body_custom }}

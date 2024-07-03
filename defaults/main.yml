@@ -16,6 +16,44 @@ redmine_container_image_registry_prefix: docker.io/
 redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
 redmine_container_image_force_pull: "{{ redmine_container_image.endswith(':latest') }}"
 
+# redmine_container_image_customized is the name of the locally built Redmine image
+# which adds various customizations on top of the original (upstream) Redmine image.
+# This image will be based on the upstream `redmine_container_image` image, only if `redmine_container_image_customizations_enabled: true`.
+redmine_container_image_customized: "localhost/redmine:{{ redmine_container_image_tag }}-customized"
+
+# redmine_container_image_final holds the name of the Redmine image to run depending on whether or not customizations are enabled.
+redmine_container_image_final: "{{ redmine_container_image_customized if redmine_container_image_customizations_enabled else redmine_container_image }} "
+
+# redmine_container_image_customizations_enabled controls whether a customized Redmine image will be built.
+#
+# We toggle this variable to `true` when certain features which require a custom build are enabled.
+# Feel free to toggle this to `true` yourself and specify build steps in `redmine_container_image_customizations_dockerfile_body_custom`.
+#
+# See:
+# - `./templates/customizations/Dockerfile.j2`
+# - `redmine_container_image_customizations_build_tools_installation_enabled`
+redmine_container_image_customizations_enabled: "{{ redmine_container_image_customizations_build_tools_installation_enabled }}"
+
+# Controls whether to install build tools in the container image.
+# Enabling certain Redmine plugins may pull dependency gems (e.g. bigdecimal) which require building native code.
+redmine_container_image_customizations_build_tools_installation_enabled: false
+
+# The packages to install when `redmine_container_image_customizations_build_tools_installation_enabled` is `true`.
+# We sometimes (as is the case for `bigdecimal`) may be able to get by with installing a small set of packages (e.g. `musl-dev`, `gcc`, `make`),
+# but installing all of `build-base` (or `build-essential` on Debian-based systems) is a safer bet.
+redmine_container_image_customizations_build_tools_installation_packages: "{{ ['build-base'] if redmine_distro.startswith('alpine') else ['build-essential'] }}"
+
+# redmine_container_image_customizations_dockerfile_body_custom contains your custom Dockerfile steps
+# for building your customized Redmine image based on the original (upstream) image (`redmine_container_image`).
+# A `FROM ...` clause is included automatically so you don't have to.
+#
+# Example:
+# redmine_container_image_customizations_dockerfile_body_custom: |
+#  RUN echo 'This is a custom step for building the customized container image for Redmine.'
+#  RUN echo 'You can override redmine_container_image_customizations_dockerfile_body_custom to add your own steps.'
+#  RUN echo 'You do NOT need to include a FROM clause yourself.'
+redmine_container_image_customizations_dockerfile_body_custom: ''
+
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 redmine_container_network: "{{ redmine_identifier }}"
 # A list of additional container networks that the container would be connected to.
@@ -33,6 +71,7 @@ redmine_files_path: "{{ redmine_data_path }}/files"
 redmine_plugins_path: "{{ redmine_data_path }}/plugins"
 redmine_theme_path: "{{ redmine_data_path }}/{{ redmine_theme_name }}"
 redmine_plugin_assets_path: "{{ redmine_data_path }}/plugin_assets"
+redmine_customized_container_src_path: "{{ redmine_base_path }}/customized-container-src"
 
 redmine_theme_name: ''
 
