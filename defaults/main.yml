@@ -5,7 +5,7 @@ redmine_enabled: true
 
 redmine_identifier: redmine
 
-redmine_version: 6.0.3
+redmine_version: 6.0.4
 redmine_distro: alpine
 
 # The fully-qualified name of your redmine server (e.g. `redmine.example.com`)
