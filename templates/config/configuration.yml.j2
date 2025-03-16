@@ -12,6 +12,7 @@ production:
   autologin_cookie_secure: true
   database_cipher_key: {{ redmine_database_cipher_key }}
   secret_token: "{{ redmine_secret_token }}"
+  secret_key_base: "{{ redmine_secret_key_base }}"
   sudo_mode: true
   sudo_mode_timeout: 15
   max_concurrent_ajax_uploads: {{ redmine_max_concurrent_ajax_uploads }}
