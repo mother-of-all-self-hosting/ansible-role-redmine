@@ -12,7 +12,7 @@
 redmine_enabled: true
 
 redmine_identifier: redmine
-redmine_base_path: "/redmine"
+redmine_base_path: "/{{ redmine_identifier }}"
 redmine_data_path: "{{ redmine_base_path }}/data"
 redmine_config_path: "{{ redmine_base_path }}/config"
 redmine_files_path: "{{ redmine_data_path }}/files"
