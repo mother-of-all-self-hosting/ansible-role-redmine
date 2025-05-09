@@ -24,33 +24,33 @@ ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_s
 ExecStartPre=-{{ devture_systemd_docker_base_host_command_sh }} -c '{{ devture_systemd_docker_base_host_command_docker }} rm {{ redmine_identifier }} 2>/dev/null'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-			--rm \
-			--name={{ redmine_identifier }} \
-			--log-driver=none \
-			--user={{ redmine_uid }}:{{ redmine_gid }} \
-			--cap-drop=ALL \
-			--network={{ redmine_container_network }} \
-			--hostname={{ redmine_hostname }} \
-			--label-file={{ redmine_base_path }}/labels \
-			--mount type=bind,src={{ redmine_files_path }},dst=/usr/src/redmine/files \
-			--mount type=bind,src={{ redmine_plugins_path }},dst=/usr/src/redmine/plugins \
-			--mount type=bind,src={{ redmine_plugin_assets_path }},dst=/usr/src/redmine/public/plugin_assets \
-			{% if redmine_theme_name %}
-			--mount type=bind,src={{ redmine_theme_path }},dst=/usr/src/redmine/public/themes/{{ redmine_theme_name }} \
-			{% endif %}
-			--mount type=bind,src={{ redmine_config_path }}/configuration.yml,dst=/usr/src/redmine/config/configuration.yml,ro \
-			--mount type=bind,src={{ redmine_config_path }}/database.yml,dst=/usr/src/redmine/config/database.yml,ro \
-			--mount type=bind,src={{ redmine_config_path }}/secret_token.rb,dst=/usr/src/redmine/config/initializers/secret_token.rb,ro \
-			--mount type=bind,src={{ redmine_config_path }}/db_schema.rb,dst=/usr/src/redmine/db/schema.rb \
-			--mount type=bind,src=/etc/timezone,dst=/etc/timezone,ro \
-			--mount type=bind,src=/etc/localtime,dst=/etc/localtime,ro \
-			--tmpfs=/tmp:rw,noexec,nosuid,size=512m \
-			--tmpfs=/usr/local/bundle/cache:rw,noexec,nosuid,size=512m \
-			--tmpfs=/usr/src/redmine/tmp:rw,noexec,nosuid,size=512m \
-			{% for arg in redmine_container_extra_arguments %}
-			{{ arg }} \
-			{% endfor %}
-			{{ redmine_container_image_final }}
+      --rm \
+      --name={{ redmine_identifier }} \
+      --log-driver=none \
+      --user={{ redmine_uid }}:{{ redmine_gid }} \
+      --cap-drop=ALL \
+      --network={{ redmine_container_network }} \
+      --hostname={{ redmine_hostname }} \
+      --label-file={{ redmine_base_path }}/labels \
+      --mount type=bind,src={{ redmine_files_path }},dst=/usr/src/redmine/files \
+      --mount type=bind,src={{ redmine_plugins_path }},dst=/usr/src/redmine/plugins \
+      --mount type=bind,src={{ redmine_plugin_assets_path }},dst=/usr/src/redmine/public/plugin_assets \
+      {% if redmine_theme_name %}
+      --mount type=bind,src={{ redmine_theme_path }},dst=/usr/src/redmine/public/themes/{{ redmine_theme_name }} \
+      {% endif %}
+      --mount type=bind,src={{ redmine_config_path }}/configuration.yml,dst=/usr/src/redmine/config/configuration.yml,ro \
+      --mount type=bind,src={{ redmine_config_path }}/database.yml,dst=/usr/src/redmine/config/database.yml,ro \
+      --mount type=bind,src={{ redmine_config_path }}/secret_token.rb,dst=/usr/src/redmine/config/initializers/secret_token.rb,ro \
+      --mount type=bind,src={{ redmine_config_path }}/db_schema.rb,dst=/usr/src/redmine/db/schema.rb \
+      --mount type=bind,src=/etc/timezone,dst=/etc/timezone,ro \
+      --mount type=bind,src=/etc/localtime,dst=/etc/localtime,ro \
+      --tmpfs=/tmp:rw,noexec,nosuid,size=512m \
+      --tmpfs=/usr/local/bundle/cache:rw,noexec,nosuid,size=512m \
+      --tmpfs=/usr/src/redmine/tmp:rw,noexec,nosuid,size=512m \
+      {% for arg in redmine_container_extra_arguments %}
+      {{ arg }} \
+      {% endfor %}
+      {{ redmine_container_image_final }}
 
 {% for network in redmine_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ redmine_identifier }}
