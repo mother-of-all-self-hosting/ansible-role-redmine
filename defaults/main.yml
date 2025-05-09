@@ -12,10 +12,21 @@
 redmine_enabled: true
 
 redmine_identifier: redmine
+redmine_base_path: "/redmine"
+redmine_data_path: "{{ redmine_base_path }}/data"
+redmine_config_path: "{{ redmine_base_path }}/config"
+redmine_files_path: "{{ redmine_data_path }}/files"
+redmine_plugins_path: "{{ redmine_data_path }}/plugins"
+redmine_theme_path: "{{ redmine_data_path }}/{{ redmine_theme_name }}"
+redmine_plugin_assets_path: "{{ redmine_data_path }}/plugin_assets"
+redmine_customized_container_src_path: "{{ redmine_base_path }}/customized-container-src"
 
 # renovate: datasource=docker depName=redmine versioning=semver
 redmine_version: 6.0.4
 redmine_distro: alpine
+
+redmine_uid: ''
+redmine_gid: ''
 
 # The fully-qualified name of your Redmine server (e.g. `redmine.example.com`)
 redmine_hostname: ''
@@ -67,105 +78,15 @@ redmine_container_image_customizations_dockerfile_body_custom: ''
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 redmine_container_network: "{{ redmine_identifier }}"
-# A list of additional container networks that the container would be connected to.
-# The role does not create these networks, so make sure they already exist.
-# Use this to expose this container to another reverse proxy, which runs in a different container network.
-redmine_container_additional_networks: []
-
-redmine_uid: ''
-redmine_gid: ''
-
-redmine_base_path: "/redmine"
-redmine_data_path: "{{ redmine_base_path }}/data"
-redmine_config_path: "{{ redmine_base_path }}/config"
-redmine_files_path: "{{ redmine_data_path }}/files"
-redmine_plugins_path: "{{ redmine_data_path }}/plugins"
-redmine_theme_path: "{{ redmine_data_path }}/{{ redmine_theme_name }}"
-redmine_plugin_assets_path: "{{ redmine_data_path }}/plugin_assets"
-redmine_customized_container_src_path: "{{ redmine_base_path }}/customized-container-src"
-
-redmine_theme_name: ''
-
-redmine_systemd_required_systemd_services_list: ['docker.service']
-
-redmine_database_type: postgresql
-redmine_database_hostname: ''
-redmine_database_port: 5432
-redmine_database_name: redmine
-redmine_database_username: redmine
-redmine_database_password: ''
-
-# Redmine reminders
-# https://www.redmine.org/projects/redmine/wiki/RedmineReminderEmails
-# systemd onCalendar schedule
-redmine_reminders_schedule: "*-*-* 07:00:00"
-
-# number of days to remind abou
-redmine_reminders_days: 7
-
-# Redmine Recurring Tasks
-# https://github.com/southbridgeio/redmine_recurring_tasks
-redmine_recurring_tasks_enabled: false
-
-# systemd onCalendar schedule
-redmine_recurring_tasks_schedule: "*:0/5"
-
-# Configuration parameters seen below are documented here:
-# https://github.com/redmine/redmine/blob/master/config/configuration.yml.example
-
-# secret key base
-redmine_secret_key_base: ''
-# session encryption token
-redmine_secret_token: ''
-# base data secret key
-redmine_database_cipher_key: ''
-# maximum number of simultaneous AJAX uploads
-redmine_max_concurrent_ajax_uploads: 10
-# smtp server address
-redmine_email_delivery_smtp_settings_address: ''
-# smtp server port
-redmine_email_delivery_smtp_settings_port: 25
-# authentication
-redmine_email_delivery_smtp_settings_authentication: :plain
-# username
-redmine_email_delivery_smtp_user_name: ''
-# password
-redmine_email_delivery_smtp_password: ''
-
-# Default Redmine configuration template which covers the generic use case.
-# You can customize it by controlling the various variables inside it.
-#
-# For a more advanced customization, you can extend the default (see `redmine_configuration_extension_yaml`)
-# or completely replace this variable with your own template.
-#
-# The side-effect of this lookup is that Ansible would even parse the JSON for us, returning a dict.
-# This is unlike what it does when looking up YAML template files (no automatic parsing there).
-redmine_configuration_default: "{{ lookup('template', 'templates/config/configuration.yml.j2') }}"
-
-# Your custom yaml configuration for Element should go to `redmine_configuration_extension_yaml`.
-# This configuration extends the default starting configuration (`redmine_configuration_default`).
-#
-# You can override individual variables from the default configuration, or introduce new ones.
-#
-# If you need something more special, you can take full control by
-# completely redefining `redmine_configuration_default`.
-#
-# Example configuration extension follows:
-#
-# redmine_configuration_extension_yaml: |
-#   session_expire_time: 60
-#   session_refresh_time: 5
-redmine_configuration_extension_yaml: '{}'
-
-redmine_configuration_extension: "{{ redmine_configuration_extension_yaml | from_yaml if redmine_configuration_extension_yaml | from_yaml is mapping else {} }}"
-
-# Holds the final Redmine configuration (a combination of the default and its extension).
-# You most likely don't need to touch this variable. Instead, see `redmine_configuration_default`.
-redmine_configuration: "{{ redmine_configuration_default | from_yaml | combine(redmine_configuration_extension, recursive=True) }}"
 
 # redmine_config_virtual_port controls the VIRTUAL_PORT environment variable,
 # which controls redmine's HTTP port in the container
 redmine_config_virtual_port: 3000
+
+# A list of additional container networks that the container would be connected to.
+# The role does not create these networks, so make sure they already exist.
+# Use this to expose this container to another reverse proxy, which runs in a different container network.
+redmine_container_additional_networks: []
 
 # redmine_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
@@ -204,9 +125,6 @@ redmine_container_labels_additional_labels: ''
 
 # A list of extra arguments to pass to the container
 redmine_container_extra_arguments: []
-
-# List of systemd services that redmine.service depends on
-redmine_systemd_required_services_list: ['docker.service']
 
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
@@ -255,6 +173,57 @@ redmine_floc_optout_enabled: true
 # See: `redmine_http_header_strict_transport_security`
 redmine_hsts_preload_enabled: false
 
+redmine_systemd_required_systemd_services_list: ['docker.service']
+
+# List of systemd services that redmine.service depends on
+redmine_systemd_required_services_list: ['docker.service']
+
+redmine_theme_name: ''
+
+redmine_database_type: postgresql
+redmine_database_hostname: ''
+redmine_database_port: 5432
+redmine_database_name: redmine
+redmine_database_username: redmine
+redmine_database_password: ''
+
+# Redmine reminders
+# https://www.redmine.org/projects/redmine/wiki/RedmineReminderEmails
+# systemd onCalendar schedule
+redmine_reminders_schedule: "*-*-* 07:00:00"
+
+# number of days to remind abou
+redmine_reminders_days: 7
+
+# Redmine Recurring Tasks
+# https://github.com/southbridgeio/redmine_recurring_tasks
+redmine_recurring_tasks_enabled: false
+
+# systemd onCalendar schedule
+redmine_recurring_tasks_schedule: "*:0/5"
+
+# Configuration parameters seen below are documented here:
+# https://github.com/redmine/redmine/blob/master/config/configuration.yml.example
+
+# secret key base
+redmine_secret_key_base: ''
+# session encryption token
+redmine_secret_token: ''
+# base data secret key
+redmine_database_cipher_key: ''
+# maximum number of simultaneous AJAX uploads
+redmine_max_concurrent_ajax_uploads: 10
+# smtp server address
+redmine_email_delivery_smtp_settings_address: ''
+# smtp server port
+redmine_email_delivery_smtp_settings_port: 25
+# authentication
+redmine_email_delivery_smtp_settings_authentication: :plain
+# username
+redmine_email_delivery_smtp_user_name: ''
+# password
+redmine_email_delivery_smtp_password: ''
+
 # redmine_container_additional_environment_variables contains a multiline string with additional environment variables to pass to the container.
 #
 # Example:
@@ -262,3 +231,34 @@ redmine_hsts_preload_enabled: false
 #   VAR=1
 #   ANOTHER=value
 redmine_container_additional_environment_variables: ''
+
+# Default Redmine configuration template which covers the generic use case.
+# You can customize it by controlling the various variables inside it.
+#
+# For a more advanced customization, you can extend the default (see `redmine_configuration_extension_yaml`)
+# or completely replace this variable with your own template.
+#
+# The side-effect of this lookup is that Ansible would even parse the JSON for us, returning a dict.
+# This is unlike what it does when looking up YAML template files (no automatic parsing there).
+redmine_configuration_default: "{{ lookup('template', 'templates/config/configuration.yml.j2') }}"
+
+# Your custom yaml configuration for Element should go to `redmine_configuration_extension_yaml`.
+# This configuration extends the default starting configuration (`redmine_configuration_default`).
+#
+# You can override individual variables from the default configuration, or introduce new ones.
+#
+# If you need something more special, you can take full control by
+# completely redefining `redmine_configuration_default`.
+#
+# Example configuration extension follows:
+#
+# redmine_configuration_extension_yaml: |
+#   session_expire_time: 60
+#   session_refresh_time: 5
+redmine_configuration_extension_yaml: '{}'
+
+redmine_configuration_extension: "{{ redmine_configuration_extension_yaml | from_yaml if redmine_configuration_extension_yaml | from_yaml is mapping else {} }}"
+
+# Holds the final Redmine configuration (a combination of the default and its extension).
+# You most likely don't need to touch this variable. Instead, see `redmine_configuration_default`.
+redmine_configuration: "{{ redmine_configuration_default | from_yaml | combine(redmine_configuration_extension, recursive=True) }}"
