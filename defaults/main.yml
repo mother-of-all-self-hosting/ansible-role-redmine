@@ -175,8 +175,11 @@ redmine_floc_optout_enabled: true
 # See: `redmine_http_header_strict_transport_security`
 redmine_hsts_preload_enabled: false
 
-# List of systemd services that redmine.service depends on
-redmine_systemd_required_services_list: ['docker.service']
+# List of systemd services that the Redmine systemd service depends on
+redmine_systemd_required_services_list: "{{ redmine_systemd_required_services_list_default + redmine_systemd_required_services_list_auto + redmine_systemd_required_services_list_custom }}"
+redmine_systemd_required_services_list_default: "{{ [devture_systemd_docker_base_docker_service_name] if devture_systemd_docker_base_docker_service_name else [] }}"
+redmine_systemd_required_services_list_auto: []
+redmine_systemd_required_services_list_custom: []
 
 redmine_theme_name: ''
 
