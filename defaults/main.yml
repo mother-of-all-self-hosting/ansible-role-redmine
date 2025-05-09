@@ -10,6 +10,7 @@ redmine_enabled: true
 
 redmine_identifier: redmine
 
+# renovate: datasource=docker depName=redmine versioning=semver
 redmine_version: 6.0.4
 redmine_distro: alpine
 
