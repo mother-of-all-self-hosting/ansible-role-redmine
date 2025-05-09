@@ -1,5 +1,8 @@
-# SPDX-FileCopyrightText: 2023 Nikita Chernyi
-# SPDX-FileCopyrightText: 2024 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
+# SPDX-FileCopyrightText: 2025 MASH project contributors
+# SPDX-FileCopyrightText: 2025 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -18,8 +21,10 @@ redmine_distro: alpine
 redmine_hostname: ''
 
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"
-redmine_container_image_registry_prefix: docker.io/
 redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
+redmine_container_image_registry_prefix: "{{ redmine_container_image_registry_prefix_upstream }}"
+redmine_container_image_registry_prefix_upstream: "{{ redmine_container_image_registry_prefix_upstream_default }}"
+redmine_container_image_registry_prefix_upstream_default: docker.io/
 redmine_container_image_force_pull: "{{ redmine_container_image.endswith(':latest') }}"
 
 # redmine_container_image_customized is the name of the locally built Redmine image
