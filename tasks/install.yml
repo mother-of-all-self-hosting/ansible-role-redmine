@@ -5,7 +5,7 @@
 
 ---
 
-- name: Ensure redmine paths exists
+- name: Ensure Redmine paths exist
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: "{{ item.state }}"
@@ -39,7 +39,7 @@
       when: "{{ redmine_container_image_customizations_enabled }}"
   when: item.when | bool
 
-- name: Ensure redmine support files created
+- name: Ensure Redmine support files created
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ redmine_base_path }}/{{ item }}"
@@ -49,7 +49,7 @@
   with_items:
     - labels
 
-- name: Ensure redmine configuration.yml created
+- name: Ensure Redmine configuration.yml created
   ansible.builtin.copy:
     content: "{{ redmine_configuration | to_nice_yaml(indent=2) }}"
     dest: "{{ redmine_config_path }}/configuration.yml"
@@ -57,7 +57,7 @@
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
 
-- name: Ensure other redmine configuration files created
+- name: Ensure other Redmine configuration files created
   ansible.builtin.template:
     src: "{{ role_path }}/templates/config/{{ item }}.j2"
     dest: "{{ redmine_config_path }}/{{ item }}"
@@ -77,7 +77,7 @@
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
 
-- name: Ensure redmine container image is pulled
+- name: Ensure Redmine container image is pulled
   community.docker.docker_image:
     name: "{{ redmine_container_image }}"
     source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
@@ -86,7 +86,7 @@
 
 - when: "redmine_container_image_customizations_enabled | bool"
   block:
-    - name: Ensure redmine Dockerfile is created
+    - name: Ensure Redmine Dockerfile is created
       ansible.builtin.template:
         src: "{{ role_path }}/templates/customizations/Dockerfile.j2"
         dest: "{{ redmine_customized_container_src_path }}/Dockerfile"
@@ -95,7 +95,7 @@
         mode: 0640
       register: redmine_container_image_customizations_dockerfile_result
 
-    - name: Ensure customized container image for redmine is built
+    - name: Ensure customized container image for Redmine is built
       community.docker.docker_image:
         name: "{{ redmine_container_image_customized }}"
         source: build
@@ -105,14 +105,14 @@
           path: "{{ redmine_customized_container_src_path }}"
           pull: true
 
-- name: Ensure redmine container network is created
+- name: Ensure Redmine container network is created
   community.general.docker_network:
     enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
     name: "{{ redmine_container_network }}"
     driver: bridge
     driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
-- name: Ensure redmine systemd units are present
+- name: Ensure Redmine systemd units are present
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/redmine{{ item }}.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}{{ item }}"
@@ -122,7 +122,7 @@
     - -send-reminders.service
     - -send-reminders.timer
 
-- name: Ensure redmine recurring tasks systemd units are present
+- name: Ensure Redmine recurring tasks systemd units are present
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/redmine{{ item }}.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}{{ item }}"

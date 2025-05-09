@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 #jinja2: lstrip_blocks: "True"
 [Unit]
-Description=redmine send reminders ({{ redmine_identifier }}-send-reminders)
+Description=Redmine send reminders ({{ redmine_identifier }}-send-reminders)
 {% for service in redmine_systemd_required_systemd_services_list %}
 Requires={{ service }}
 After={{ service }}

@@ -14,7 +14,7 @@ redmine_identifier: redmine
 redmine_version: 6.0.4
 redmine_distro: alpine
 
-# The fully-qualified name of your redmine server (e.g. `redmine.example.com`)
+# The fully-qualified name of your Redmine server (e.g. `redmine.example.com`)
 redmine_hostname: ''
 
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"
@@ -127,7 +127,7 @@ redmine_email_delivery_smtp_user_name: ''
 # password
 redmine_email_delivery_smtp_password: ''
 
-# Default redmine configuration template which covers the generic use case.
+# Default Redmine configuration template which covers the generic use case.
 # You can customize it by controlling the various variables inside it.
 #
 # For a more advanced customization, you can extend the default (see `redmine_configuration_extension_yaml`)
@@ -154,7 +154,7 @@ redmine_configuration_extension_yaml: '{}'
 
 redmine_configuration_extension: "{{ redmine_configuration_extension_yaml | from_yaml if redmine_configuration_extension_yaml | from_yaml is mapping else {} }}"
 
-# Holds the final redmine configuration (a combination of the default and its extension).
+# Holds the final Redmine configuration (a combination of the default and its extension).
 # You most likely don't need to touch this variable. Instead, see `redmine_configuration_default`.
 redmine_configuration: "{{ redmine_configuration_default | from_yaml | combine(redmine_configuration_extension, recursive=True) }}"
 

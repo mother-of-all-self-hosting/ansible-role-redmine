@@ -7,7 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 #jinja2: lstrip_blocks: "True"
 [Unit]
-Description=redmine ({{ redmine_identifier }})
+Description=Redmine ({{ redmine_identifier }})
 {% for service in redmine_systemd_required_systemd_services_list %}
 Requires={{ service }}
 After={{ service }}
