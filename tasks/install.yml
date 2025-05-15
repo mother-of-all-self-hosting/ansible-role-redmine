@@ -39,7 +39,7 @@
       when: "{{ redmine_container_image_customizations_enabled }}"
   when: item.when | bool
 
-- name: Ensure Redmine support files created
+- name: Ensure Redmine support files installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ redmine_base_path }}/{{ item }}"
