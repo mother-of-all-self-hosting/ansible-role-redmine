@@ -1,6 +1,7 @@
 {#
 SPDX-FileCopyrightText: 2023 Nikita Chernyi
 SPDX-FileCopyrightText: 2024 Slavi Pantaleev
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -31,6 +32,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --cap-drop=ALL \
       --network={{ redmine_container_network }} \
       --hostname={{ redmine_hostname }} \
+      --env-file={{ redmine_base_path }}/env \
       --label-file={{ redmine_base_path }}/labels \
       --mount type=bind,src={{ redmine_files_path }},dst=/usr/src/redmine/files \
       --mount type=bind,src={{ redmine_plugins_path }},dst=/usr/src/redmine/plugins \

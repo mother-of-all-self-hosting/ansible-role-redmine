@@ -47,6 +47,7 @@
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
   with_items:
+    - env
     - labels
 
 - name: Ensure Redmine configuration.yml created
