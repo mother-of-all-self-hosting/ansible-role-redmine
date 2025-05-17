@@ -11,7 +11,7 @@
 
 - when: redmine_service_stat.stat.exists | bool
   block:
-    - name: Ensure Redmine systemd unites are stopped
+    - name: Ensure Redmine systemd units are stopped
       ansible.builtin.service:
         name: "{{ item }}"
         state: stopped
@@ -22,7 +22,7 @@
         - "{{ redmine_identifier }}-send-reminders.service"
         - "{{ redmine_identifier }}-send-reminders.timer"
 
-    - name: Ensure Redmine recurring tasks systemd unites are stopped
+    - name: Ensure Redmine recurring tasks systemd units are stopped
       ansible.builtin.service:
         name: "{{ item }}"
         state: stopped
@@ -33,12 +33,12 @@
         - "{{ redmine_identifier }}-recurring-tasks.service"
         - "{{ redmine_identifier }}-recurring-tasks.timer"
 
-    - name: Ensure Redmine data removed
+    - name: Ensure Redmine path does not exist
       ansible.builtin.file:
         path: "{{ redmine_base_path }}"
         state: absent
 
-    - name: Ensure Redmine systemd units do not exists
+    - name: Ensure Redmine systemd units do not exist
       ansible.builtin.file:
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ item }}"
         state: absent
