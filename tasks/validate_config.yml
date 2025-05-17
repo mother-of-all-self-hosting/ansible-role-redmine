@@ -12,6 +12,7 @@
   when: "item.old in vars"
   with_items:
     - {'old': 'redmine_systemd_required_systemd_services_list', 'new': 'redmine_systemd_required_services_list'}
+    - {'old': 'redmine_container_additional_environment_variables', 'new': 'redmine_environment_variables_additional_variables'}
 
 - name: Fail if required Redmine settings not defined
   ansible.builtin.fail:
