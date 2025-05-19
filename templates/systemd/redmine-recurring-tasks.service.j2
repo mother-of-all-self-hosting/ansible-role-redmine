@@ -4,7 +4,6 @@ SPDX-FileCopyrightText: 2023 Nikita Chernyi
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
-#jinja2: lstrip_blocks: "True"
 [Unit]
 Description=Redmine recurring tasks ({{ redmine_identifier }}-recurring-tasks)
 {% for service in redmine_systemd_required_services_list %}
