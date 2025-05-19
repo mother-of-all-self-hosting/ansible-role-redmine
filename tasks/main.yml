@@ -1,13 +1,18 @@
 # SPDX-FileCopyrightText: 2023 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- block:
-    - when: redmine_enabled | bool
+
+- name: Perform Redmine installation tasks
+  block:
+    - name: Validate Redmine configuration
+      when: redmine_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
 
-    - when: redmine_enabled | bool
+    - name: Install Redmine
+      when: redmine_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
@@ -15,8 +20,10 @@
     - install-all
     - install-redmine
 
-- block:
-    - when: not redmine_enabled | bool
+- name: Perform Redmine uninstallation tasks
+  block:
+    - name: Uninstall Redmine
+      when: not redmine_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
   tags:
     - setup-all
