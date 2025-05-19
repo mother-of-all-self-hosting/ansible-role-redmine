@@ -50,7 +50,7 @@
     - env
     - labels
 
-- name: Ensure Redmine configuration.yml created
+- name: Ensure Redmine configuration file installed
   ansible.builtin.copy:
     content: "{{ redmine_configuration | to_nice_yaml(indent=2) }}"
     dest: "{{ redmine_config_path }}/configuration.yml"
@@ -58,7 +58,7 @@
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
 
-- name: Ensure other Redmine configuration files created
+- name: Ensure other Redmine configuration files installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/config/{{ item }}.j2"
     dest: "{{ redmine_config_path }}/{{ item }}"
