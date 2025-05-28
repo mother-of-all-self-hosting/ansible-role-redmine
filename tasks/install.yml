@@ -4,12 +4,11 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Ensure Redmine paths exist
   ansible.builtin.file:
     path: "{{ item.path }}"
     state: "{{ item.state }}"
-    mode: 0700
+    mode: "0700"
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
   with_items:
@@ -43,7 +42,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ redmine_base_path }}/{{ item }}"
-    mode: 0640
+    mode: "0640"
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
   with_items:
@@ -54,7 +53,7 @@
   ansible.builtin.copy:
     content: "{{ redmine_configuration | to_nice_yaml(indent=2) }}"
     dest: "{{ redmine_config_path }}/configuration.yml"
-    mode: 0640
+    mode: "0640"
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
 
@@ -62,7 +61,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/config/{{ item }}.j2"
     dest: "{{ redmine_config_path }}/{{ item }}"
-    mode: 0640
+    mode: "0640"
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
   with_items:
@@ -74,7 +73,7 @@
   ansible.builtin.file:
     path: "{{ redmine_config_path }}/db_schema.rb"
     state: touch
-    mode: 0640
+    mode: "0640"
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
 
@@ -89,7 +88,8 @@
   delay: "{{ devture_playbook_help_container_retries_delay }}"
   until: result is not failed
 
-- when: "redmine_container_image_customizations_enabled | bool"
+- name: Run if container image customizations are enabled
+  when: "redmine_container_image_customizations_enabled | bool"
   block:
     - name: Ensure Redmine Dockerfile is created
       ansible.builtin.template:
@@ -97,7 +97,7 @@
         dest: "{{ redmine_customized_container_src_path }}/Dockerfile"
         owner: "{{ redmine_uid }}"
         group: "{{ redmine_gid }}"
-        mode: 0640
+        mode: "0640"
       register: redmine_container_image_customizations_dockerfile_result
 
     - name: Ensure customized container image for Redmine is built
@@ -121,7 +121,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/redmine{{ item }}.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}{{ item }}"
-    mode: 0644
+    mode: "0644"
   with_items:
     - .service
     - -send-reminders.service
@@ -131,7 +131,7 @@
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/redmine{{ item }}.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}{{ item }}"
-    mode: 0644
+    mode: "0644"
   when: redmine_recurring_tasks_enabled | bool
   with_items:
     - -recurring-tasks.service

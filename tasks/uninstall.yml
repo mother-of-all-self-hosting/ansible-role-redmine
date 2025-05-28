@@ -3,13 +3,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Check existence of Redmine systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ redmine_identifier }}.service"
   register: redmine_service_stat
 
-- when: redmine_service_stat.stat.exists | bool
+- name: Uninstall redmine systemd services and files
+  when: redmine_service_stat.stat.exists | bool
   block:
     - name: Ensure Redmine systemd units are stopped
       ansible.builtin.service:

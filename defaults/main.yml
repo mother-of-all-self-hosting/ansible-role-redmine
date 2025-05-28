@@ -198,7 +198,7 @@ redmine_database_password: ''
 # systemd onCalendar schedule
 redmine_reminders_schedule: "*-*-* 07:00:00"
 
-# number of days to remind abou
+# number of days to remind about
 redmine_reminders_days: 7
 
 # Redmine Recurring Tasks

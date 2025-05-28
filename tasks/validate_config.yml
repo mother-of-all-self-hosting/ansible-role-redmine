@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: (Deprecation) Catch and report renamed settings
   ansible.builtin.fail:
     msg: >-
@@ -11,8 +10,8 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "item.old in vars"
   with_items:
-    - {'old': 'redmine_systemd_required_systemd_services_list', 'new': 'redmine_systemd_required_services_list'}
-    - {'old': 'redmine_container_additional_environment_variables', 'new': 'redmine_environment_variables_additional_variables'}
+    - { "old": "redmine_systemd_required_systemd_services_list", "new": "redmine_systemd_required_services_list" }
+    - { "old": "redmine_container_additional_environment_variables", "new": "redmine_environment_variables_additional_variables" }
 
 - name: Fail if required Redmine settings not defined
   ansible.builtin.fail:

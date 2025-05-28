@@ -4,27 +4,25 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-
 - name: Perform Redmine installation tasks
-  block:
-    - name: Validate Redmine configuration
-      when: redmine_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
-
-    - name: Install Redmine
-      when: redmine_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
   tags:
     - setup-all
     - setup-redmine
     - install-all
     - install-redmine
+  block:
+    - name: Validate Redmine configuration
+      when: redmine_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+    - name: Install Redmine
+      when: redmine_enabled | bool
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
 - name: Perform Redmine uninstallation tasks
+  tags:
+    - setup-all
+    - setup-redmine
   block:
     - name: Uninstall Redmine
       when: not redmine_enabled | bool
       ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
-  tags:
-    - setup-all
-    - setup-redmine
