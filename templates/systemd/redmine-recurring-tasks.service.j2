@@ -19,6 +19,6 @@ Type=oneshot
 Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} exec {{ redmine_identifier }} \
-	rake redmine_recurring_tasks:exec RAILS_ENV="production"
+  rake redmine_recurring_tasks:exec RAILS_ENV="production"
 
 SyslogIdentifier={{ redmine_identifier }}-recurring-tasks
