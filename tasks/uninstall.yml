@@ -33,11 +33,6 @@
         - "{{ redmine_identifier }}-recurring-tasks.service"
         - "{{ redmine_identifier }}-recurring-tasks.timer"
 
-    - name: Ensure Redmine path does not exist
-      ansible.builtin.file:
-        path: "{{ redmine_base_path }}"
-        state: absent
-
     - name: Ensure Redmine systemd units do not exist
       ansible.builtin.file:
         path: "{{ devture_systemd_docker_base_systemd_path }}/{{ item }}"
@@ -48,3 +43,8 @@
         - "{{ redmine_identifier }}-send-reminders.timer"
         - "{{ redmine_identifier }}-recurring-tasks.service"
         - "{{ redmine_identifier }}-recurring-tasks.timer"
+
+    - name: Ensure Redmine path does not exist
+      ansible.builtin.file:
+        path: "{{ redmine_base_path }}"
+        state: absent
