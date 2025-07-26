@@ -33,7 +33,7 @@
   ansible.builtin.fail:
     msg: >-
       You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `postgres`
-  when: "redmine_database_type == 'postgres' and vars[item] == ''"
+  when: "redmine_database_type == 'postgres' and lookup('vars', item, default='') | string | length == 0"
   with_items:
     - redmine_database_username
     - redmine_database_password
