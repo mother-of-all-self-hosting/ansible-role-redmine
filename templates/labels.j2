@@ -13,11 +13,18 @@ traefik.docker.network={{ redmine_container_labels_traefik_docker_network }}
 
 {% set middlewares = [] %}
 
+{% if redmine_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
+{% for name, value in redmine_container_labels_traefik_additional_request_headers.items() %}
+traefik.http.middlewares.{{ redmine_identifier }}-add-request-headers.headers.customrequestheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [redmine_identifier + '-add-request-headers'] %}
+{% endif %}
+
 {% if redmine_container_labels_traefik_additional_response_headers.keys() | length > 0 %}
 {% for name, value in redmine_container_labels_traefik_additional_response_headers.items() %}
-traefik.http.middlewares.{{ redmine_identifier }}-add-headers.headers.customresponseheaders.{{ name }}={{ value }}
+traefik.http.middlewares.{{ redmine_identifier }}-add-response-headers.headers.customresponseheaders.{{ name }}={{ value }}
 {% endfor %}
-{% set middlewares = middlewares + [redmine_identifier + '-add-headers'] %}
+{% set middlewares = middlewares + [redmine_identifier + '-add-response-headers'] %}
 {% endif %}
 
 traefik.http.routers.{{ redmine_identifier }}.rule={{ redmine_container_labels_traefik_rule }}

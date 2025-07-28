@@ -102,8 +102,14 @@ redmine_container_labels_traefik_entrypoints: web-secure
 redmine_container_labels_traefik_tls: "{{ redmine_container_labels_traefik_entrypoints != 'web' }}"
 redmine_container_labels_traefik_tls_certResolver: default  # noqa var-naming
 
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `redmine_container_labels_traefik_additional_request_headers_custom`
+redmine_container_labels_traefik_additional_request_headers: "{{ redmine_container_labels_traefik_additional_request_headers_auto | combine(redmine_container_labels_traefik_additional_request_headers_custom) }}"
+redmine_container_labels_traefik_additional_request_headers_auto: {}
+redmine_container_labels_traefik_additional_request_headers_custom: {}
+
 # Controls which additional headers to attach to all HTTP responses.
-# To add your own headers, use `redmine_container_labels_traefik_additional_response_headers_custom`
+# To add your own custom response headers, use `redmine_container_labels_traefik_additional_response_headers_custom`
 redmine_container_labels_traefik_additional_response_headers: "{{ redmine_container_labels_traefik_additional_response_headers_auto | combine(redmine_container_labels_traefik_additional_response_headers_custom) }}"
 redmine_container_labels_traefik_additional_response_headers_auto: |
   {{
