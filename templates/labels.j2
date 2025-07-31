@@ -1,5 +1,7 @@
 {#
 SPDX-FileCopyrightText: 2023 Nikita Chernyi
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+SPDX-FileCopyrightText: 2025 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -12,6 +14,17 @@ traefik.docker.network={{ redmine_container_labels_traefik_docker_network }}
 {% endif %}
 
 {% set middlewares = [] %}
+
+{% if redmine_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.regex=^({{ redmine_container_labels_traefik_path_prefix | quote }})$
+traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
+{% set middlewares = middlewares + [redmine_identifier + '-slashless-redirect'] %}
+{% endif %}
+
+{% if redmine_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ redmine_identifier }}-strip-prefix.stripprefix.prefixes={{ redmine_container_labels_traefik_path_prefix }}
+{% set middlewares = middlewares + [redmine_identifier + '-strip-prefix'] %}
+{% endif %}
 
 {% if redmine_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
 {% for name, value in redmine_container_labels_traefik_additional_request_headers.items() %}

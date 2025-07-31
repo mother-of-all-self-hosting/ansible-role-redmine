@@ -31,6 +31,8 @@ redmine_gid: ''
 # The fully-qualified name of your Redmine server (e.g. `redmine.example.com`)
 redmine_hostname: ''
 
+redmine_path_prefix: /
+
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"
 redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
 redmine_container_image_registry_prefix: "{{ redmine_container_image_registry_prefix_upstream }}"
@@ -95,8 +97,11 @@ redmine_container_additional_networks_custom: []
 #
 # To inject your own other container labels, see `redmine_container_labels_additional_labels`.
 redmine_container_labels_traefik_enabled: true
-redmine_container_labels_traefik_docker_network: '{{ redmine_identifier }}'
-redmine_container_labels_traefik_rule: "Host(`{{ redmine_hostname }}`)"
+redmine_container_labels_traefik_docker_network: "{{ redmine_container_network }}"
+redmine_container_labels_traefik_hostname: "{{ redmine_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/redmine`).
+redmine_container_labels_traefik_path_prefix: "{{ redmine_path_prefix }}"
+redmine_container_labels_traefik_rule: "Host(`{{ redmine_container_labels_traefik_hostname }}`){% if redmine_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ redmine_container_labels_traefik_path_prefix }}`){% endif %}"
 redmine_container_labels_traefik_priority: 0
 redmine_container_labels_traefik_entrypoints: web-secure
 redmine_container_labels_traefik_tls: "{{ redmine_container_labels_traefik_entrypoints != 'web' }}"
