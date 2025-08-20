@@ -235,11 +235,11 @@ redmine_email_delivery_smtp_settings_address: ''
 # smtp server port
 redmine_email_delivery_smtp_settings_port: 25
 # authentication
-redmine_email_delivery_smtp_settings_authentication: :plain
+redmine_email_delivery_smtp_settings_authentication: ~
 # username
-redmine_email_delivery_smtp_user_name: ''
+redmine_email_delivery_smtp_user_name: ~
 # password
-redmine_email_delivery_smtp_password: ''
+redmine_email_delivery_smtp_password: ~
 
 # redmine_environment_variables_additional_variables contains a multiline string with additional environment variables to pass to the container.
 #
