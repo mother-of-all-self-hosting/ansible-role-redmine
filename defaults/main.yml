@@ -193,7 +193,10 @@ redmine_systemd_required_services_list_auto: []
 redmine_systemd_required_services_list_custom: []
 
 # List of systemd services that the Redmine systemd service wants
-redmine_systemd_wanted_services_list: []
+redmine_systemd_wanted_services_list: "{{ redmine_systemd_wanted_services_list_default + redmine_systemd_wanted_services_list_auto + redmine_systemd_wanted_services_list_custom }}"
+redmine_systemd_wanted_services_list_default: []
+redmine_systemd_wanted_services_list_auto: []
+redmine_systemd_wanted_services_list_custom: []
 
 redmine_theme_name: ''
 
