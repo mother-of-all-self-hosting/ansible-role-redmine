@@ -15,6 +15,10 @@
     - { "old": "redmine_systemd_required_systemd_services_list", "new": "redmine_systemd_required_services_list" }
     - { "old": "redmine_container_additional_environment_variables", "new": "redmine_environment_variables_additional_variables" }
     - { "old": "redmine_http_header_content_permission_policy", "new": "redmine_http_header_permissions_policy" }
+    - { "old": "redmine_database_hostname", "new": "redmine_database_postgres_hostname" }
+    - { "old": "redmine_database_port", "new": "redmine_database_postgres_port" }
+    - { "old": "redmine_database_username", "new": "redmine_database_postgres_username" }
+    - { "old": "redmine_database_password", "new": "redmine_database_postgres_password" }
 
 - name: Fail if required Redmine settings not defined
   ansible.builtin.fail:
@@ -31,8 +35,17 @@
 - name: Fail if Redmine database type invalid
   ansible.builtin.fail:
     msg: >-
-      redmine_database_type must be 'postgresql' or 'sqlite3'
-  when: "redmine_database_type not in ['postgresql', 'sqlite3']"
+      redmine_database_type must be 'mysql2', 'postgresql', 'sqlite3', or 'sqlserver'
+  when: "redmine_database_type not in ['mysql2', 'postgresql', 'sqlite3', 'sqlserver']"
+
+- name: Fail if required Redmine + MySQL integration settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `mysql2`
+  when: "redmine_database_type == 'mysql2' and lookup('vars', item, default='') | string | length == 0"
+  with_items:
+    - redmine_database_mysql_username
+    - redmine_database_mysql_password
 
 - name: Fail if required Redmine + Postgres integration settings not defined
   ansible.builtin.fail:
@@ -40,8 +53,17 @@
       You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `postgresql`
   when: "redmine_database_type == 'postgresql' and lookup('vars', item, default='') | string | length == 0"
   with_items:
-    - redmine_database_username
-    - redmine_database_password
+    - redmine_database_postgres_username
+    - redmine_database_postgres_password
+
+- name: Fail if required Redmine + SQL Server integration settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `sqlserver`
+  when: "redmine_database_type == 'sqlserver' and lookup('vars', item, default='') | string | length == 0"
+  with_items:
+    - redmine_database_sqlserver_username
+    - redmine_database_sqlserver_password
 
 - name: Run if Traefik is enabled
   when: redmine_container_labels_traefik_enabled | bool

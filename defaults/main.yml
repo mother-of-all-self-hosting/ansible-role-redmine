@@ -200,12 +200,22 @@ redmine_systemd_wanted_services_list_custom: []
 
 redmine_theme_name: ''
 
+# Specify database to use
+# Valid values: mysql2, postgresql, sqlite3, sqlserver
 redmine_database_type: postgresql
-redmine_database_hostname: ''
-redmine_database_port: 5432
+
+# See: https://www.redmine.org/projects/redmine/wiki/redmineinstall#Step-3-Database-connection-configuration
+redmine_database_mysql_hostname: ""
+redmine_database_mysql_port: 5432
+redmine_database_mysql_username: redmine
+redmine_database_mysql_password: ""
+redmine_database_postgres_hostname: ""
+redmine_database_postgres_port: 5432
+redmine_database_postgres_username: redmine
+redmine_database_postgres_password: ""
+redmine_database_sqlserver_username: redmine
+redmine_database_sqlserver_password: ""
 redmine_database_name: redmine
-redmine_database_username: redmine
-redmine_database_password: ''
 
 # Redmine reminders
 # https://www.redmine.org/projects/redmine/wiki/RedmineReminderEmails
