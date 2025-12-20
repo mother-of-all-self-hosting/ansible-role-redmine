@@ -254,14 +254,6 @@ redmine_email_delivery_smtp_user_name: ~
 # password
 redmine_email_delivery_smtp_password: ~
 
-# redmine_environment_variables_additional_variables contains a multiline string with additional environment variables to pass to the container.
-#
-# Example:
-# redmine_environment_variables_additional_variables: |
-#   VAR=1
-#   ANOTHER=value
-redmine_environment_variables_additional_variables: ''
-
 # Default Redmine configuration template which covers the generic use case.
 # You can customize it by controlling the various variables inside it.
 #
@@ -292,3 +284,14 @@ redmine_configuration_extension: "{{ redmine_configuration_extension_yaml | from
 # Holds the final Redmine configuration (a combination of the default and its extension).
 # You most likely don't need to touch this variable. Instead, see `redmine_configuration_default`.
 redmine_configuration: "{{ redmine_configuration_default | from_yaml | combine(redmine_configuration_extension, recursive=True) }}"
+
+# Specify the timezone
+redmine_environment_variables_tz: UTC
+
+# redmine_environment_variables_additional_variables contains a multiline string with additional environment variables to pass to the container.
+#
+# Example:
+# redmine_environment_variables_additional_variables: |
+#   VAR=1
+#   ANOTHER=value
+redmine_environment_variables_additional_variables: ''
