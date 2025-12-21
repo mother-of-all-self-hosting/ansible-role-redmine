@@ -25,11 +25,11 @@ redmine_customized_container_src_path: "{{ redmine_base_path }}/customized-conta
 redmine_version: 6.1.0
 redmine_distro: alpine
 
-redmine_uid: ''
-redmine_gid: ''
+redmine_uid: ""
+redmine_gid: ""
 
 # The fully-qualified name of your Redmine server (e.g. `redmine.example.com`)
-redmine_hostname: ''
+redmine_hostname: ""
 
 redmine_path_prefix: /
 
@@ -76,7 +76,7 @@ redmine_container_image_customizations_build_tools_installation_packages: "{{ ['
 #  RUN echo 'This is a custom step for building the customized container image for Redmine.'
 #  RUN echo 'You can override redmine_container_image_customizations_dockerfile_body_custom to add your own steps.'
 #  RUN echo 'You do NOT need to include a FROM clause yourself.'
-redmine_container_image_customizations_dockerfile_body_custom: ''
+redmine_container_image_customizations_dockerfile_body_custom: ""
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 redmine_container_network: "{{ redmine_identifier }}"
@@ -203,7 +203,7 @@ redmine_systemd_wanted_services_list_default: []
 redmine_systemd_wanted_services_list_auto: []
 redmine_systemd_wanted_services_list_custom: []
 
-redmine_theme_name: ''
+redmine_theme_name: ""
 
 # Specify database to use
 # Valid values: mysql2, postgresql, sqlite3, sqlserver
@@ -241,15 +241,15 @@ redmine_recurring_tasks_schedule: "*:0/5"
 # https://github.com/redmine/redmine/blob/master/config/configuration.yml.example
 
 # secret key base
-redmine_secret_key_base: ''
+redmine_secret_key_base: ""
 # session encryption token
-redmine_secret_token: ''
+redmine_secret_token: ""
 # base data secret key
-redmine_database_cipher_key: ''
+redmine_database_cipher_key: ""
 # maximum number of simultaneous AJAX uploads
 redmine_max_concurrent_ajax_uploads: 10
 # smtp server address
-redmine_email_delivery_smtp_settings_address: ''
+redmine_email_delivery_smtp_settings_address: ""
 # smtp server port
 redmine_email_delivery_smtp_settings_port: 25
 # authentication
@@ -299,4 +299,4 @@ redmine_environment_variables_tz: UTC
 # redmine_environment_variables_additional_variables: |
 #   VAR=1
 #   ANOTHER=value
-redmine_environment_variables_additional_variables: ''
+redmine_environment_variables_additional_variables: ""
