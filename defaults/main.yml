@@ -132,7 +132,7 @@ redmine_container_labels_traefik_additional_response_headers_custom: {}
 # To add your own custom labels, use `redmine_container_labels_additional_labels_custom`
 #
 # Example:
-# redmine_container_labels_additional_labels_custom: |
+# redmine_container_labels_additional_labels_custom:
 #   - my.label=1
 #   - another.label="here"
 redmine_container_labels_additional_labels: "{{ redmine_container_labels_additional_labels_auto + redmine_container_labels_additional_labels_custom }}"
