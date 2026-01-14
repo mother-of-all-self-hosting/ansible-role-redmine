@@ -31,6 +31,8 @@ redmine_gid: ""
 # The hostname at which Redmine is served.
 redmine_hostname: ""
 
+# The path at which Redmine is served.
+# This value must either be `/` or not end with a slash (e.g. `/redmine`).
 redmine_path_prefix: /
 
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"
