@@ -141,6 +141,15 @@ redmine_container_labels_additional_labels: "{{ redmine_container_labels_additio
 redmine_container_labels_additional_labels_auto: []
 redmine_container_labels_additional_labels_custom: []
 
+# Specify the size of the container's tmpfs volume (/tmp)
+redmine_container_tmpfs_tmp_size: 512m
+
+# Specify the size of the container's tmpfs volume (/usr/local/bundle/cache)
+redmine_container_tmpfs_cache_size: 512m
+
+# Specify the size of the container's tmpfs volume (/usr/src/redmine/tmp)
+redmine_container_tmpfs_usr_tmp_size: 512m
+
 # A list of extra arguments to pass to the container (`docker create` command)
 redmine_container_extra_arguments: "{{ redmine_container_extra_arguments_auto + redmine_container_extra_arguments_custom }}"
 redmine_container_extra_arguments_auto: []
