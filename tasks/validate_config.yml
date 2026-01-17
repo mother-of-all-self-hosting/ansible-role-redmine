@@ -12,6 +12,7 @@
       Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
   when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
+    - { "old": "redmine_config_virtual_port", "new": "redmine_container_http_port" }
     - { "old": "redmine_systemd_required_systemd_services_list", "new": "redmine_systemd_required_services_list" }
     - { "old": "redmine_container_additional_environment_variables", "new": "redmine_environment_variables_additional_variables" }
     - { "old": "redmine_http_header_content_permission_policy", "new": "redmine_http_header_permissions_policy" }

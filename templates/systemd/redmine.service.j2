@@ -30,6 +30,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --user={{ redmine_uid }}:{{ redmine_gid }} \
       --cap-drop=ALL \
       --network={{ redmine_container_network }} \
+      {% if redmine_container_http_host_bind_port %}
+      -p {{ redmine_container_http_host_bind_port }}:{{ redmine_container_http_port }} \
+      {% endif %}
       --hostname={{ redmine_hostname }} \
       --env-file={{ redmine_base_path }}/env \
       --label-file={{ redmine_base_path }}/labels \

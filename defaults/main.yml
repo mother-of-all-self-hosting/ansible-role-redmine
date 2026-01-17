@@ -83,9 +83,13 @@ redmine_container_image_customizations_dockerfile_body_custom: ""
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 redmine_container_network: "{{ redmine_identifier }}"
 
-# redmine_config_virtual_port controls the VIRTUAL_PORT environment variable,
-# which controls redmine's HTTP port in the container
-redmine_config_virtual_port: 3000
+# Specify how the container publishes its HTTP port (as defined by `redmine_container_http_port`).
+#
+# Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
+redmine_container_http_host_bind_port: ""
+
+# The port number in the container
+redmine_container_http_port: 3000
 
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.

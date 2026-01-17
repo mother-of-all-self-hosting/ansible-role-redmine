@@ -54,7 +54,7 @@ traefik.http.routers.{{ redmine_identifier }}.tls={{ redmine_container_labels_tr
 traefik.http.routers.{{ redmine_identifier }}.tls.certResolver={{ redmine_container_labels_traefik_tls_certResolver }}
 {% endif %}
 
-traefik.http.services.{{ redmine_identifier }}.loadbalancer.server.port={{ redmine_config_virtual_port }}
+traefik.http.services.{{ redmine_identifier }}.loadbalancer.server.port={{ redmine_container_http_port }}
 {% endif %}
 
 {% for arg in redmine_container_labels_additional_labels %}
