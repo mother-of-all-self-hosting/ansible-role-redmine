@@ -22,7 +22,7 @@ redmine_plugin_assets_path: "{{ redmine_data_path }}/plugin_assets"
 redmine_customized_container_src_path: "{{ redmine_base_path }}/customized-container-src"
 
 # renovate: datasource=docker depName=redmine versioning=semver
-redmine_version: 6.1.0
+redmine_version: 6.1.1
 redmine_distro: alpine
 
 redmine_uid: ""
