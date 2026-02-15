@@ -45,21 +45,24 @@
         - "{{ redmine_identifier }}-recurring-tasks.service"
         - "{{ redmine_identifier }}-recurring-tasks.timer"
 
-    - name: Ensure Redmine container network does not exist via community.docker.docker_network
-      when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
-      community.docker.docker_network:
-        name: "{{ redmine_container_network }}"
-        state: absent
-      register: redmine_network_deletion_result
+    - name: Ensure Redmine container network does not exist
+      when: redmine_container_network_deletion_enabled
+      block:
+        - name: Ensure Redmine container network does not exist via community.docker.docker_network
+          when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
+          community.docker.docker_network:
+            name: "{{ redmine_container_network }}"
+            state: absent
+          register: redmine_network_deletion_result
 
-    - name: Ensure Redmine container network does not exist via ansible.builtin.command
-      when: devture_systemd_docker_base_container_network_creation_method == 'command'
-      ansible.builtin.command:
-        cmd: >-
-          {{ devture_systemd_docker_base_host_command_docker }} network rm
-          {{ redmine_container_network }}
-      register: redmine_network_deletion_result
-      changed_when: redmine_container_network in redmine_network_deletion_result.stdout
+        - name: Ensure Redmine container network does not exist via ansible.builtin.command
+          when: devture_systemd_docker_base_container_network_creation_method == 'command'
+          ansible.builtin.command:
+            cmd: >-
+              {{ devture_systemd_docker_base_host_command_docker }} network rm
+              {{ redmine_container_network }}
+          register: redmine_network_deletion_result
+          changed_when: redmine_container_network in redmine_network_deletion_result.stdout
 
     - name: Ensure Redmine path does not exist
       ansible.builtin.file:
