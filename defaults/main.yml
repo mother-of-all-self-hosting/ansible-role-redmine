@@ -1,8 +1,8 @@
-# SPDX-FileCopyrightText: 2023 - 2024 Nikita Chernyi
-# SPDX-FileCopyrightText: 2023 - 2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
+# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2025 MASH project contributors
-# SPDX-FileCopyrightText: 2025 Suguru Hirahara
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -289,23 +289,23 @@ redmine_recurring_tasks_schedule: "*:0/5"
 # Configuration parameters seen below are documented here:
 # https://github.com/redmine/redmine/blob/master/config/configuration.yml.example
 
-# secret key base
+# Specify secret key base
 redmine_secret_key_base: ""
-# session encryption token
+
+# Specify session encryption token
 redmine_secret_token: ""
-# base data secret key
+
+# Specify base data secret key
 redmine_database_cipher_key: ""
-# maximum number of simultaneous AJAX uploads
+
+# Specify maximum number of simultaneous AJAX uploads
 redmine_max_concurrent_ajax_uploads: 10
-# smtp server address
+
+# Specify SMTP server configuration
 redmine_email_delivery_smtp_settings_address: ""
-# smtp server port
 redmine_email_delivery_smtp_settings_port: 25
-# authentication
 redmine_email_delivery_smtp_settings_authentication: ~
-# username
 redmine_email_delivery_smtp_user_name: ~
-# password
 redmine_email_delivery_smtp_password: ~
 
 # Default Redmine configuration template which covers the generic use case.
