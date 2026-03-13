@@ -32,6 +32,7 @@
     - redmine_hostname
     - redmine_path_prefix
     - redmine_container_network
+    - redmine_database_type
 
 - name: Fail if Redmine database type invalid
   ansible.builtin.fail:

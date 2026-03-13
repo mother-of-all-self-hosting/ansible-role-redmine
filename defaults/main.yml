@@ -256,7 +256,7 @@ redmine_theme_name: ""
 
 # Specify database to use
 # Valid values: mysql2, postgresql, sqlite3, sqlserver
-redmine_database_type: postgresql
+redmine_database_type: ""
 
 # See: https://www.redmine.org/projects/redmine/wiki/redmineinstall#Step-3-Database-connection-configuration
 redmine_database_mysql_hostname: ""
