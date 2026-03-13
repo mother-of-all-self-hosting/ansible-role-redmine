@@ -260,7 +260,7 @@ redmine_database_type: postgresql
 
 # See: https://www.redmine.org/projects/redmine/wiki/redmineinstall#Step-3-Database-connection-configuration
 redmine_database_mysql_hostname: ""
-redmine_database_mysql_port: 5432
+redmine_database_mysql_port: 3306
 redmine_database_mysql_username: redmine
 redmine_database_mysql_password: ""
 redmine_database_postgres_hostname: ""
