@@ -37,14 +37,14 @@
 - name: Fail if Redmine database type invalid
   ansible.builtin.fail:
     msg: >-
-      redmine_database_type must be 'mysql2', 'postgresql', 'sqlite3', or 'sqlserver'
-  when: "redmine_database_type not in ['mysql2', 'postgresql', 'sqlite3', 'sqlserver']"
+      redmine_database_type must be 'mysql', 'postgres', 'sqlite', or 'sqlserver'
+  when: "redmine_database_type not in ['mysql', 'postgres', 'sqlite', 'sqlserver']"
 
 - name: Fail if required Redmine + MySQL integration settings not defined
   ansible.builtin.fail:
     msg: >-
-      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `mysql2`
-  when: "redmine_database_type == 'mysql2' and lookup('vars', item, default='') | string | length == 0"
+      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `mysql`
+  when: "redmine_database_type == 'mysql' and lookup('vars', item, default='') | string | length == 0"
   with_items:
     - redmine_database_mysql_username
     - redmine_database_mysql_password
@@ -52,8 +52,8 @@
 - name: Fail if required Redmine + Postgres integration settings not defined
   ansible.builtin.fail:
     msg: >-
-      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `postgresql`
-  when: "redmine_database_type == 'postgresql' and lookup('vars', item, default='') | string | length == 0"
+      You need to define a required configuration setting (`{{ item }}`) when `redmine_database_type` is `postgres`
+  when: "redmine_database_type == 'postgres' and lookup('vars', item, default='') | string | length == 0"
   with_items:
     - redmine_database_postgres_username
     - redmine_database_postgres_password

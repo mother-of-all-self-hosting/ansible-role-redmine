@@ -255,7 +255,7 @@ redmine_container_cleanup_command: |
 redmine_theme_name: ""
 
 # Specify database to use
-# Valid values: mysql2, postgresql, sqlite3, sqlserver
+# Valid values: mysql, postgres, sqlite, sqlserver
 redmine_database_type: ""
 
 # See: https://www.redmine.org/projects/redmine/wiki/redmineinstall#Step-3-Database-connection-configuration
