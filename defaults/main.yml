@@ -254,10 +254,11 @@ redmine_container_cleanup_command: |
 
 redmine_theme_name: ""
 
-# Specify database to use
+# Specify a database driver to use
 # Valid values: mysql, postgres, sqlite, sqlserver
 redmine_database_type: ""
 
+# Specify database configuration
 # See: https://www.redmine.org/projects/redmine/wiki/redmineinstall#Step-3-Database-connection-configuration
 redmine_database_mysql_hostname: ""
 redmine_database_mysql_port: 3306
