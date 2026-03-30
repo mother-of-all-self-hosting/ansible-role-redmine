@@ -1,7 +1,7 @@
 {#
 SPDX-FileCopyrightText: 2023 Nikita Chernyi
 SPDX-FileCopyrightText: 2024 Slavi Pantaleev
-SPDX-FileCopyrightText: 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -47,6 +47,12 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --mount type=bind,src={{ redmine_config_path }}/db_schema.rb,dst=/usr/src/redmine/db/schema.rb \
       --mount type=bind,src=/etc/timezone,dst=/etc/timezone,ro \
       --mount type=bind,src=/etc/localtime,dst=/etc/localtime,ro \
+      {% if redmine_database_type == 'mysql' and redmine_database_mysql_socket_enabled and redmine_database_mysql_socket_path_host != '' %}
+      --mount type=bind,src={{ redmine_database_mysql_socket_path_host }},dst={{ redmine_database_mysql_socket_path_container }} \
+      {% endif %}
+      {% if redmine_database_type == 'postgres' and redmine_database_postgres_socket_enabled and redmine_database_postgres_socket_path_host != '' %}
+      --mount type=bind,src={{ redmine_database_postgres_socket_path_host }},dst={{ redmine_database_postgres_socket_path_container }} \
+      {% endif %}
       --tmpfs=/tmp:rw,noexec,nosuid,size={{ redmine_container_tmpfs_tmp_size }} \
       --tmpfs=/usr/local/bundle/cache:rw,noexec,nosuid,size={{ redmine_container_tmpfs_cache_size }} \
       --tmpfs=/usr/src/redmine/tmp:rw,noexec,nosuid,size={{ redmine_container_tmpfs_usr_tmp_size }} \

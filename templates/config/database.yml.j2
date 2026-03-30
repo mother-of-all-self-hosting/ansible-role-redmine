@@ -1,6 +1,6 @@
 {#
 SPDX-FileCopyrightText: 2023 Nikita Chernyi
-SPDX-FileCopyrightText: 2025 Suguru Hirahara
+SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -9,14 +9,18 @@ production:
   database: {{ redmine_database_name }}
 {% if redmine_database_type == 'mysql' %}
   adapter: mysql2
-  host: {{ redmine_database_mysql_hostname }}
+{% if redmine_database_mysql_socket_enabled %}
+  socket: {{ redmine_config_database_host_mysql }}
+{% else %}
+  host: {{ redmine_config_database_host_mysql }}
+{% endif %}
   username: {{ redmine_database_mysql_username }}
   password: "{{ redmine_database_mysql_password }}"
   variables:
     transaction_isolation: "READ-COMMITTED"
 {% elif redmine_database_type == 'postgres' %}
   adapter: postgresql
-  host: {{ redmine_database_postgres_hostname }}
+  host: {{ redmine_config_database_host_postgres }}
   username: {{ redmine_database_postgres_username }}
   password: "{{ redmine_database_postgres_password }}"
 {% elif redmine_database_type == 'sqlserver' %}

@@ -1,5 +1,5 @@
 # SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
-# SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2023-2026 Slavi Pantaleev
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2025 MASH project contributors
 # SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
@@ -254,6 +254,12 @@ redmine_container_cleanup_command: |
 
 redmine_theme_name: ""
 
+########################################################################
+#                                                                      #
+# database                                                             #
+#                                                                      #
+########################################################################
+
 # Specify a database driver to use
 # Valid values: mysql, postgres, sqlite, sqlserver
 redmine_database_type: ""
@@ -271,6 +277,33 @@ redmine_database_postgres_password: ""
 redmine_database_sqlserver_username: redmine
 redmine_database_sqlserver_password: ""
 redmine_database_name: redmine
+
+# Control if the database connection to MySQL is made via a Unix socket
+redmine_database_mysql_socket_enabled: true
+
+# Specify the path to the MySQL Unix socket path inside the Redmine container
+redmine_database_mysql_socket_path_container: /run-mysqld
+
+# Specify the path to the MySQL Unix socket path on the host (bind-mount source)
+redmine_database_mysql_socket_path_host: ""
+
+# Control if the database connection to Postgres is made via a Unix socket
+redmine_database_postgres_socket_enabled: true
+
+# Specify the path to the Postgres Unix socket path inside the Redmine container
+redmine_database_postgres_socket_path_container: /run-postgres
+
+# Specify the path to the Postgres Unix socket path on the host (bind-mount source)
+redmine_database_postgres_socket_path_host: ""
+
+redmine_config_database_host_mysql: "{{ redmine_database_mysql_socket_path_container + '/mysqld.sock' if redmine_database_mysql_socket_enabled else redmine_database_mysql_hostname }}"
+redmine_config_database_host_postgres: "{{ redmine_database_postgres_socket_path_container if redmine_database_postgres_socket_enabled else redmine_database_postgres_hostname }}"
+
+########################################################################
+#                                                                      #
+# /database                                                            #
+#                                                                      #
+########################################################################
 
 # Redmine reminders
 # https://www.redmine.org/projects/redmine/wiki/RedmineReminderEmails
