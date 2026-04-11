@@ -99,7 +99,7 @@
   register: redmine_config_path_stat
 
 # We just want to notify the user. Deleting data is too destructive.
-- name: Notify if Redmine local config data remains
+- name: Inject the message about the remaining Redmine local config data path
   when: redmine_config_path_stat.stat.exists | bool
   ansible.builtin.set_fact:
     devture_playbook_runtime_messages_list: |
@@ -117,7 +117,7 @@
   register: redmine_data_path_stat
 
 # We just want to notify the user. Deleting data is too destructive.
-- name: Notify if Redmine local data remains
+- name: Inject the message about the remaining Redmine local data path
   when: redmine_data_path_stat.stat.exists | bool
   ansible.builtin.set_fact:
     devture_playbook_runtime_messages_list: |
