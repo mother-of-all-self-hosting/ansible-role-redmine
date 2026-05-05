@@ -21,6 +21,7 @@
     - { "old": "redmine_database_port", "new": "redmine_database_postgres_port" }
     - { "old": "redmine_database_username", "new": "redmine_database_postgres_username" }
     - { "old": "redmine_database_password", "new": "redmine_database_postgres_password" }
+    - { "old": "redmine_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }
 
 - name: Fail if required Redmine settings not defined
   ansible.builtin.fail:

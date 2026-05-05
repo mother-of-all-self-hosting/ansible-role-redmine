@@ -40,7 +40,6 @@ redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
 redmine_container_image_registry_prefix: "{{ redmine_container_image_registry_prefix_upstream }}"
 redmine_container_image_registry_prefix_upstream: "{{ redmine_container_image_registry_prefix_upstream_default }}"
 redmine_container_image_registry_prefix_upstream_default: docker.io/
-redmine_container_image_force_pull: "{{ redmine_container_image.endswith(':latest') }}"
 
 # redmine_container_image_customized is the name of the locally built Redmine image
 # which adds various customizations on top of the original (upstream) Redmine image.
