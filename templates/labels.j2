@@ -15,6 +15,11 @@ traefik.docker.network={{ redmine_container_labels_traefik_docker_network }}
 
 {% set middlewares = [] %}
 
+{% if redmine_container_labels_traefik_middleware_basic_auth_enabled %}
+{% set middlewares = middlewares + [redmine_identifier + '-basic-auth'] %}
+traefik.http.middlewares.{{ redmine_identifier }}-basic-auth.basicauth.users={{ redmine_container_labels_traefik_middleware_basic_auth_users }}
+{% endif %}
+
 {% if redmine_container_labels_traefik_path_prefix != '/' %}
 traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.regex=^({{ redmine_container_labels_traefik_path_prefix | quote }})$
 traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
