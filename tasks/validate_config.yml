@@ -35,6 +35,9 @@
     - redmine_path_prefix
     - redmine_container_network
     - redmine_database_type
+    - redmine_secret_key_base
+    - redmine_secret_token
+    - redmine_database_cipher_key
 
 - name: Fail if Redmine database type invalid
   ansible.builtin.fail:
