@@ -15,6 +15,7 @@ redmine_identifier: redmine
 redmine_base_path: "/{{ redmine_identifier }}"
 redmine_data_path: "{{ redmine_base_path }}/data"
 redmine_config_path: "{{ redmine_base_path }}/config"
+redmine_database_path: "{{ redmine_data_path }}/database"
 redmine_files_path: "{{ redmine_data_path }}/files"
 redmine_plugins_path: "{{ redmine_data_path }}/plugins"
 redmine_theme_path: "{{ redmine_data_path }}/{{ redmine_theme_name }}"
@@ -268,6 +269,7 @@ redmine_database_type: ""
 
 # Specify database configuration
 # See: https://www.redmine.org/projects/redmine/wiki/redmineinstall#Step-3-Database-connection-configuration
+redmine_database_filename: db/sqlite/redmine.sqlite3
 redmine_database_mysql_hostname: ""
 redmine_database_mysql_port: 3306
 redmine_database_mysql_username: redmine

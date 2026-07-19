@@ -6,9 +6,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
 production:
-  database: {{ redmine_database_name }}
 {% if redmine_database_type == 'mysql' %}
   adapter: mysql2
+  database: {{ redmine_database_name }}
 {% if redmine_database_mysql_socket_enabled %}
   socket: {{ redmine_config_database_host_mysql }}
 {% else %}
@@ -20,13 +20,16 @@ production:
     transaction_isolation: "READ-COMMITTED"
 {% elif redmine_database_type == 'postgres' %}
   adapter: postgresql
+  database: {{ redmine_database_name }}
   host: {{ redmine_config_database_host_postgres }}
   username: {{ redmine_database_postgres_username }}
   password: "{{ redmine_database_postgres_password }}"
 {% elif redmine_database_type == 'sqlserver' %}
   adapter: sqlserver
+  database: {{ redmine_database_name }}
   username: {{ redmine_database_sqlserver_username }}
   password: "{{ redmine_database_sqlserver_password }}"
 {% else %}
   adapter: sqlite3
+  database: {{ redmine_database_filename }}
 {% endif %}

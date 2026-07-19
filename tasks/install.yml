@@ -24,6 +24,9 @@
     - path: "{{ redmine_files_path }}"
       state: directory
       when: true
+    - path: "{{ redmine_database_path }}"
+      state: directory
+      when: "{{ redmine_database_type == 'sqlite' }}"
     - path: "{{ redmine_plugins_path }}"
       state: directory
       when: true

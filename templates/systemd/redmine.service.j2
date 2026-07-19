@@ -47,6 +47,9 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --mount type=bind,src={{ redmine_config_path }}/db_schema.rb,dst=/usr/src/redmine/db/schema.rb \
       --mount type=bind,src=/etc/timezone,dst=/etc/timezone,ro \
       --mount type=bind,src=/etc/localtime,dst=/etc/localtime,ro \
+      {% if redmine_database_type == 'sqlite' %}
+      --mount type=bind,src={{ redmine_database_path }},dst=/usr/src/redmine/db/sqlite \
+      {% endif %}
       {% if redmine_database_type == 'mysql' and redmine_database_mysql_socket_enabled and redmine_database_mysql_socket_path_host != '' %}
       --mount type=bind,src={{ redmine_database_mysql_socket_path_host }},dst={{ redmine_database_mysql_socket_path_container }} \
       {% endif %}
