@@ -37,11 +37,11 @@ provisioner:
         redmine_hostname: localhost
         redmine_container_labels_traefik_enabled: false
         redmine_container_http_host_bind_port: 3000
-        redmine_database_type: sqlite
         redmine_secret_key_base: secret
         redmine_secret_token: secret
         redmine_database_cipher_key: secret
         redmine_mount_timezone_enabled: false
+        redmine_database_type: sqlite
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles

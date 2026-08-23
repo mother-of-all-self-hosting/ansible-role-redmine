@@ -37,13 +37,13 @@ provisioner:
         redmine_hostname: localhost
         redmine_container_labels_traefik_enabled: false
         redmine_container_http_host_bind_port: 3000
-        redmine_database_type: mysql
         redmine_secret_key_base: secret
         redmine_secret_token: secret
         redmine_database_cipher_key: secret
         redmine_mount_timezone_enabled: false
 
         # Variables required for Redmine to connect to the MariaDB database (via Unix socket)
+        redmine_database_type: mysql
         redmine_database_mysql_username: my_database_username
         redmine_database_mysql_password: my_database_password
         redmine_database_name: redmine
