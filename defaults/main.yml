@@ -91,7 +91,12 @@ redmine_container_network_deletion_enabled: true
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 redmine_container_http_host_bind_port: ""
 
-# The port number in the container
+# The port number that Redmine listens on inside the container.
+#
+# The role passes it to the container as `PORT`, which is what the image's
+# `rails server` command reads, so changing this really does move the port
+# Redmine binds to - along with the port that Traefik and
+# `redmine_container_http_host_bind_port` are pointed at.
 redmine_container_http_port: 3000
 
 # A list of additional container networks that the container would be connected to.
