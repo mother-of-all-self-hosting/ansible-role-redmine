@@ -85,7 +85,13 @@ scenario:
     - create
     - prepare
     - converge
-    # Disable idempotence test for now due to /redmine/data being changed every time
+    # The role is one task short of idempotent, so this stays off for now.
+    # `Ensure Redmine paths exist` creates `redmine_plugin_assets_path` with
+    # mode 0700, and the image's entrypoint chmods `public/*assets` back to
+    # 755 on every start, so the two flip that directory back and forth
+    # forever and the task reports changed on every run. It does not feed
+    # `redmine_restart_necessary`, so nothing restarts over it. Everything
+    # else in the role reports `ok` on a second run.
     # - idempotence
     - side_effect
     - verify
