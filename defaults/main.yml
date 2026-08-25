@@ -48,7 +48,7 @@ redmine_container_image_registry_prefix_upstream_default: docker.io/
 redmine_container_image_customized: "localhost/redmine:{{ redmine_container_image_tag }}-customized"
 
 # redmine_container_image_final holds the name of the Redmine image to run depending on whether or not customizations are enabled.
-redmine_container_image_final: "{{ redmine_container_image_customized if redmine_container_image_customizations_enabled else redmine_container_image }} "
+redmine_container_image_final: "{{ redmine_container_image_customized if redmine_container_image_customizations_enabled else redmine_container_image }}"
 
 # redmine_container_image_customizations_enabled controls whether a customized Redmine image will be built.
 #
