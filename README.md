@@ -1,5 +1,6 @@
 <!--
 SPDX-FileCopyrightText: 2023 Nikita Chernyi
+SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 SPDX-FileCopyrightText: 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
@@ -17,6 +18,28 @@ This role *implicitly* depends on:
 Check [`defaults/main.yml`](defaults/main.yml) for the full list of supported options.
 
 💡 For an Ansible playbook which integrates this role and makes it easier to use, see the [Mother-of-All-Self-Hosting Ansible playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
+
+## After the first installation
+
+### Take over the `admin` account immediately
+
+Redmine's own database setup — `rake db:migrate`, which the container image runs on every start — seeds a single administrator account with the login `admin` and the password `admin`. This role neither creates that account nor can change it: it exists as soon as Redmine has finished starting for the first time.
+
+Redmine flags the account as having to change its password at first login, so whoever logs in first is the one who gets to set the real password. On an instance that is already published at its hostname, that need not be you. **Log in and change the password before pointing anyone at the instance.** If you cannot do that straight away, keep the instance closed off until you can — for example with `redmine_container_labels_traefik_middleware_basic_auth_enabled`.
+
+### Enable the REST API if you need it
+
+Redmine's REST API is disabled by default and is turned on under *Administration → Settings → API*. This role does not manage Redmine's runtime settings, so that remains a manual step.
+
+## Notes on some of the settings
+
+### Ports
+
+`redmine_container_http_port` is the port Redmine listens on *inside* the container. The role passes it to the container as `PORT`, which is what the image's `rails server` command reads, so changing it moves the port the process actually binds — as well as the port that Traefik and `redmine_container_http_host_bind_port` are pointed at.
+
+### Database
+
+`redmine_database_type` has to be set explicitly; the role fails validation otherwise. Be aware that the upstream image quietly writes a `config/database.yml` of its own and falls back to a SQLite database whenever it does not find one, so a misconfigured instance still looks perfectly healthy from the outside. The Molecule scenarios assert against exactly that fallback — see [`molecule/README.md`](./molecule/README.md).
 
 ## Development
 
