@@ -34,6 +34,10 @@ redmine_hostname: ""
 
 # The path at which Redmine is served.
 # This value must either be `/` or not end with a slash (e.g. `/redmine`).
+#
+# When it is not `/`, the reverse-proxy configuration strips the prefix before
+# the request reaches Redmine, and the role passes the prefix to the container
+# as `RAILS_RELATIVE_URL_ROOT` so that the URLs Redmine generates carry it.
 redmine_path_prefix: /
 
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"

@@ -37,6 +37,10 @@ Redmine's REST API is disabled by default and is turned on under *Administration
 
 `redmine_container_http_port` is the port Redmine listens on *inside* the container. The role passes it to the container as `PORT`, which is what the image's `rails server` command reads, so changing it moves the port the process actually binds — as well as the port that Traefik and `redmine_container_http_host_bind_port` are pointed at.
 
+### Serving Redmine under a path prefix
+
+`redmine_path_prefix` must either be `/` or a path that does not end with a slash (e.g. `/redmine`). When it is not `/`, the reverse-proxy configuration strips the prefix before the request reaches Redmine — Redmine keeps routing at `/` — and the role passes the prefix to the container as `RAILS_RELATIVE_URL_ROOT` so that the URLs Redmine generates (assets, links, redirects) carry it. Without that, Redmine would emit `/assets/…` links which the browser sends back to a path the proxy does not route.
+
 ### Database
 
 `redmine_database_type` has to be set explicitly; the role fails validation otherwise. Be aware that the upstream image quietly writes a `config/database.yml` of its own and falls back to a SQLite database whenever it does not find one, so a misconfigured instance still looks perfectly healthy from the outside. The Molecule scenarios assert against exactly that fallback — see [`molecule/README.md`](./molecule/README.md).

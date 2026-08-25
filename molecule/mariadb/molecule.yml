@@ -48,6 +48,11 @@ provisioner:
         redmine_uid: 1000
         redmine_gid: 1000
         redmine_hostname: localhost
+        # A reverse proxy would strip this prefix before the request reaches
+        # Redmine, so Redmine still routes at `/` and the checks in verify.yml
+        # can talk to it directly. What the prefix has to change is the URLs
+        # Redmine generates, which is what verify.yml looks for.
+        redmine_path_prefix: /redmine
         redmine_container_labels_traefik_enabled: false
         redmine_container_http_host_bind_port: 3000
         redmine_container_http_port: 3000

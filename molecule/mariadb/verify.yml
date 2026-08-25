@@ -14,6 +14,26 @@
       ansible.builtin.include_tasks:
         file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/resources/tasks/verify_redmine.yml"
 
+    # This scenario is the one that serves Redmine under a path prefix. A
+    # reverse proxy strips that prefix, so Redmine keeps routing at `/` - what
+    # has to change is the URLs Redmine generates, and it only learns about
+    # the prefix through `RAILS_RELATIVE_URL_ROOT` in the role's env file.
+    # Without it Redmine emits `/assets/...`, which a browser would send back
+    # to a path the proxy does not route.
+    - name: Assert that the path prefix reached the container
+      ansible.builtin.assert:
+        that: ('RAILS_RELATIVE_URL_ROOT=' ~ redmine_path_prefix) in redmine_container_env.stdout_lines
+        fail_msg: "The container's environment does not carry RAILS_RELATIVE_URL_ROOT={{ redmine_path_prefix }}"
+        success_msg: "The container's environment carries RAILS_RELATIVE_URL_ROOT={{ redmine_path_prefix }}"
+
+    - name: Assert that the URLs Redmine generates carry the path prefix
+      ansible.builtin.assert:
+        that: redmine_home_page.content is search((redmine_path_prefix ~ '/assets/') | regex_escape)
+        fail_msg: >-
+          Redmine's home page references assets outside `{{ redmine_path_prefix }}/assets/`,
+          so a reverse proxy serving it under that prefix would hand the browser dead links
+        success_msg: "Redmine generates its URLs under `{{ redmine_path_prefix }}`, as the role configures"
+
     # The role builds `redmine_config_database_host_mysql` out of
     # `redmine_database_mysql_socket_path_container` and writes it into
     # database.yml as `socket:`. Reading it back off the live connection is
