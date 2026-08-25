@@ -75,10 +75,18 @@
     - secret_token.rb
   register: redmine_config_files_result
 
+# The file only has to exist so that Docker bind-mounts it as a file rather
+# than creating a directory in its place; Redmine writes the actual schema
+# dump into it. The timestamps are preserved so that a run which changes
+# nothing is not reported as changed - `state: touch` on its own always is,
+# which used to make `redmine_restart_necessary` true on every single
+# playbook run and restart Redmine (and re-run `rake db:migrate`) for nothing.
 - name: Ensure db schema file exists
   ansible.builtin.file:
     path: "{{ redmine_config_path }}/db_schema.rb"
     state: touch
+    modification_time: preserve
+    access_time: preserve
     mode: "0640"
     owner: "{{ redmine_uid }}"
     group: "{{ redmine_gid }}"
