@@ -30,6 +30,24 @@ provisioner:
       all:
         # Helper variables
         redmine_debug_service_enabled: false
+        # The project verify.yml creates inside the running Redmine and then
+        # goes looking for over HTTP and in this scenario's database. The
+        # identifier differs per scenario, so a container left over from
+        # another one cannot pass for this scenario's.
+        redmine_molecule_project_identifier: molecule-probe-default
+        redmine_molecule_project_name: Molecule probe (default)
+        # Which ActiveRecord adapter this scenario expects to be carrying the
+        # data. `SQLite` is also what the image falls back to when it finds no
+        # database.yml, which is why the scenarios that expect something else
+        # check for the fallback file as well.
+        redmine_molecule_expected_adapter: SQLite
+        # Where this scenario's SQLite database lands on the host.
+        # `redmine_database_path` is Jinja-derived, so verify.yml cannot read
+        # it out of defaults/main.yml and is given the resolved path here.
+        redmine_molecule_sqlite_path: /redmine/data/database/redmine.sqlite3
+        # A value that can only reach the container through
+        # `redmine_environment_variables_additional_variables`.
+        redmine_molecule_marker: molecule-marker-default
 
         # Variables for Redmine
         redmine_uid: 1000
@@ -37,11 +55,23 @@ provisioner:
         redmine_hostname: localhost
         redmine_container_labels_traefik_enabled: false
         redmine_container_http_host_bind_port: 3000
+        redmine_container_http_port: 3000
         redmine_secret_key_base: secret
         redmine_secret_token: secret
         redmine_database_cipher_key: secret
         redmine_mount_timezone_enabled: false
         redmine_database_type: sqlite
+        # Redmine's own built-in default is 2, so a value distinct from it
+        # tells a process that read the role's configuration.yml apart from
+        # one that did not. Each scenario picks a different number.
+        redmine_max_concurrent_ajax_uploads: 7
+        # Distinct from the role's own default of `UTC`, so that seeing it in
+        # the container proves the env file rather than an inherited value.
+        redmine_environment_variables_tz: Europe/Sofia
+        # Exercises the role's escape hatch for settings without a dedicated
+        # variable; verify.yml asserts the marker reached the container.
+        redmine_environment_variables_additional_variables: |
+          MOLECULE_MARKER={{ redmine_molecule_marker }}
   env:
     # Workaround for https://github.com/ansible/molecule/issues/4391
     ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles:~/.ansible/roles

@@ -1,53 +1,88 @@
 # SPDX-FileCopyrightText: 2026 spatterlight
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Verify Redmine systemd service
+- name: Verify Redmine
   hosts: all
   become: true
   gather_facts: false
   tasks:
-    - name: Wait for Redmine service to become active (up to 180s)
-      ansible.builtin.systemd:
-        name: redmine.service
-      register: redmine_service
-      until: redmine_service.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
+    - name: Run the checks shared by all Redmine scenarios
+      ansible.builtin.include_tasks:
+        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/resources/tasks/verify_redmine.yml"
 
-    - name: Assert Redmine service is active
+    # The role builds `redmine_config_database_host_mysql` out of
+    # `redmine_database_mysql_socket_path_container` and writes it into
+    # database.yml as `socket:`. Reading it back off the live connection is
+    # what proves the Unix-socket wiring, rather than some TCP connection that
+    # happened to work, is what Redmine is using.
+    - name: Assert that the live connection uses the socket the role mounts
       ansible.builtin.assert:
-        that: redmine_service.status.ActiveState == 'active'
-        fail_msg: "redmine.service not active ({{ redmine_service.status.ActiveState }})"
-        success_msg: "redmine.service is active"
+        that:
+          - redmine_reported.database.socket == redmine_role_defaults.redmine_database_mysql_socket_path_container ~ '/mysqld.sock'
+          - redmine_reported.database.username == redmine_database_mysql_username
+          - redmine_reported.database.database == redmine_database_name
+        fail_msg: >-
+          Redmine's live connection is {{ redmine_reported.database }}, not the
+          `{{ redmine_role_defaults.redmine_database_mysql_socket_path_container }}/mysqld.sock` socket,
+          `{{ redmine_database_mysql_username }}` user and `{{ redmine_database_name }}`
+          database the role configures
+        success_msg: "Redmine's live connection uses the socket, user and database the role configures"
 
-    - name: Retrieve Redmine service log for debugging
-      when: redmine_debug_service_enabled | bool
+    # Pointing `redmine_database_type` at `mysql` is only worth testing if it
+    # actually moves the data. Asking MariaDB itself for the project that was
+    # created inside Redmine is what settles that; a `database.yml` sitting on
+    # disk would look just as convincing while Redmine quietly kept a SQLite
+    # file of its own.
+    #
+    # The query goes in as the role's own database user, so the credentials
+    # the role configured are under test here too.
+    - name: Read the projects Redmine stored, out of the MariaDB database
       ansible.builtin.command:
-        cmd: journalctl -xeu redmine.service
+        argv:
+          - docker
+          - exec
+          - "{{ mariadb_identifier | default('mariadb') }}"
+          - mariadb
+          - "--user={{ redmine_database_mysql_username }}"
+          - "--password={{ redmine_database_mysql_password }}"
+          - --batch
+          - --skip-column-names
+          - "{{ redmine_database_name }}"
+          - "--execute=SELECT identifier FROM projects ORDER BY id"
+      register: redmine_mariadb_projects
       changed_when: false
 
-    - name: Wait for Redmine HTTP endpoint to respond (up to 10m)
-      ansible.builtin.uri:
-        url: "http://localhost:3000/"
-        method: GET
-        status_code: [200, 302]
-        follow_redirects: none
-      register: redmine_endpoint
-      until: redmine_endpoint.status in [200, 302]
-      retries: 120
-      delay: 5
-
-    - name: Assert Redmine HTTP endpoint responds
+    - name: Assert that the MariaDB database holds the project that was created
       ansible.builtin.assert:
-        that: redmine_endpoint.status in [200, 302]
-        fail_msg: "Redmine did not respond as expected ({{ redmine_endpoint.status | default('no response') }})"
-        success_msg: "Redmine responded with {{ redmine_endpoint.status }}"
+        that: redmine_mariadb_projects.stdout_lines == [redmine_molecule_project_identifier]
+        fail_msg: >-
+          The `{{ redmine_database_name }}` database holds {{ redmine_mariadb_projects.stdout_lines }},
+          not the `{{ redmine_molecule_project_identifier }}` that was created
+        success_msg: "The `{{ redmine_database_name }}` MariaDB database holds the project that was created"
 
-    - name: Show Redmine systemd service status summary
-      ansible.builtin.debug:
-        msg:
-          - "Redmine systemd: {{ redmine_service.status.ActiveState }}"
-          - "Redmine HTTP: {{ redmine_endpoint.status }}"
+    - name: Check whether Redmine also wrote the image entrypoint's SQLite database
+      ansible.builtin.command:
+        argv:
+          - docker
+          - exec
+          - "{{ redmine_role_defaults.redmine_identifier }}"
+          - test
+          - -e
+          - /usr/src/redmine/sqlite/redmine.db
+      register: redmine_sqlite_fallback
+      changed_when: false
+      failed_when: false
+
+    # The counterpart of the checks above. If the role's database.yml never
+    # reached the container, the entrypoint writes one of its own and falls
+    # back to SQLite at this path - and everything visible from the outside
+    # still looks perfectly healthy.
+    - name: Assert that Redmine did not fall back to SQLite
+      ansible.builtin.assert:
+        that: redmine_sqlite_fallback.rc != 0
+        fail_msg: "Redmine wrote a SQLite database at `/usr/src/redmine/sqlite/redmine.db` despite being pointed at MariaDB"
+        success_msg: "Redmine wrote no SQLite fallback, so MariaDB is its only store"

@@ -47,15 +47,35 @@ Currently these testing scenarios are available:
 
 ### `default`
 
-Tests a standard Redmine installation.
+Tests a standard Redmine installation, storing its data in SQLite.
 
 ### `mariadb`
 
-Tests a standard Redmine installation with the MariaDB database.
+Tests a standard Redmine installation with the MariaDB database, connected over a Unix socket.
 
 ### `postgres`
 
-Tests a standard Redmine installation with the Postgres database.
+Tests a standard Redmine installation with the Postgres database, connected over a Unix socket.
+
+This is also the scenario that runs Redmine on a container port other than the default one, so that `redmine_container_http_port` is under test rather than merely configured.
+
+## What the scenarios check
+
+The checks every scenario runs live in [`resources/tasks/verify_redmine.yml`](resources/tasks/verify_redmine.yml); each scenario's own `verify.yml` adds what proves its particular database backend is the one carrying the data.
+
+They are built around what an *unconfigured* Redmine image does, which was established by running `docker.io/redmine:7.0.0-alpine` by hand with no role involved:
+
+- the image's entrypoint writes a `config/database.yml` of its own whenever it does not find one, falls back to SQLite, runs `rake db:migrate` and then serves a perfectly healthy site. `GET /` answers `200` with `<title>Redmine</title>`;
+- so neither "the systemd unit is active" (the unit carries `Restart=always`) nor "something answered 200" says anything about whether this role configured anything at all.
+
+What the scenarios therefore assert instead:
+
+- the container runs the image `redmine_version`/`redmine_distro` add up to, and the booted application reports that same version;
+- the role's `configuration.yml` reached the process, by reading back a `max_concurrent_ajax_uploads` that differs both from Redmine's own built-in default and between scenarios;
+- the role's env file reached the container, including the `PORT` that decides which port Redmine binds and a marker passed through `redmine_environment_variables_additional_variables`;
+- the live ActiveRecord connection uses the adapter, socket, user and database the scenario configured;
+- a project created inside the running Redmine is served back over HTTP *and* is found in the database server itself - and, for the MariaDB and Postgres scenarios, that no SQLite fallback file was written alongside it;
+- the seeded `admin` account is still flagged as having to change its password at first login.
 
 ## Running
 

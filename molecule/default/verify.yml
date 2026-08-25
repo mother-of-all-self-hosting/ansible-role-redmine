@@ -1,53 +1,53 @@
 # SPDX-FileCopyrightText: 2026 spatterlight
 # SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Verify Redmine systemd service
+- name: Verify Redmine
   hosts: all
   become: true
   gather_facts: false
   tasks:
-    - name: Wait for Redmine service to become active (up to 180s)
-      ansible.builtin.systemd:
-        name: redmine.service
-      register: redmine_service
-      until: redmine_service.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
+    - name: Run the checks shared by all Redmine scenarios
+      ansible.builtin.include_tasks:
+        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/resources/tasks/verify_redmine.yml"
 
-    - name: Assert Redmine service is active
+    # This scenario sets `redmine_database_type` to `sqlite`, and the role then
+    # points Redmine at `db/sqlite/redmine.sqlite3` and bind-mounts
+    # `redmine_database_path` over `db/sqlite`, so the file survives the
+    # container. The image's own SQLite fallback uses a different, unmounted
+    # path (`sqlite/redmine.db`), so both checks below distinguish the role's
+    # database.yml from the one the entrypoint writes when it finds none.
+    - name: Assert that the live connection reads the file the role configured
       ansible.builtin.assert:
-        that: redmine_service.status.ActiveState == 'active'
-        fail_msg: "redmine.service not active ({{ redmine_service.status.ActiveState }})"
-        success_msg: "redmine.service is active"
+        that: redmine_reported.database.database == redmine_role_defaults.redmine_database_filename
+        fail_msg: >-
+          Redmine's live connection reads `{{ redmine_reported.database.database }}`,
+          not the `{{ redmine_role_defaults.redmine_database_filename }}` the role configures
+          (`sqlite/redmine.db` would mean the image entrypoint's own fallback)
+        success_msg: "Redmine's live connection reads `{{ redmine_role_defaults.redmine_database_filename }}`, as the role configures"
 
-    - name: Retrieve Redmine service log for debugging
-      when: redmine_debug_service_enabled | bool
+    - name: Read the projects Redmine stored, out of its SQLite database
       ansible.builtin.command:
-        cmd: journalctl -xeu redmine.service
+        argv:
+          - python3
+          - "-c"
+          - |
+            import sqlite3
+            import sys
+
+            connection = sqlite3.connect('file:%s?mode=ro' % sys.argv[1], uri=True)
+            print(','.join(row[0] for row in connection.execute('SELECT identifier FROM projects ORDER BY id')))
+          - "{{ redmine_molecule_sqlite_path }}"
+      register: redmine_sqlite_projects
       changed_when: false
 
-    - name: Wait for Redmine HTTP endpoint to respond (up to 10m)
-      ansible.builtin.uri:
-        url: "http://localhost:3000/"
-        method: GET
-        status_code: [200, 302]
-        follow_redirects: none
-      register: redmine_endpoint
-      until: redmine_endpoint.status in [200, 302]
-      retries: 120
-      delay: 5
-
-    - name: Assert Redmine HTTP endpoint responds
+    - name: Assert that the SQLite database holds the project that was created
       ansible.builtin.assert:
-        that: redmine_endpoint.status in [200, 302]
-        fail_msg: "Redmine did not respond as expected ({{ redmine_endpoint.status | default('no response') }})"
-        success_msg: "Redmine responded with {{ redmine_endpoint.status }}"
-
-    - name: Show Redmine systemd service status summary
-      ansible.builtin.debug:
-        msg:
-          - "Redmine systemd: {{ redmine_service.status.ActiveState }}"
-          - "Redmine HTTP: {{ redmine_endpoint.status }}"
+        that: redmine_sqlite_projects.stdout.split(',') == [redmine_molecule_project_identifier]
+        fail_msg: >-
+          `{{ redmine_molecule_sqlite_path }}` holds `{{ redmine_sqlite_projects.stdout }}`,
+          not the `{{ redmine_molecule_project_identifier }}` that was created
+        success_msg: "The SQLite database at `{{ redmine_molecule_sqlite_path }}` holds the project that was created"

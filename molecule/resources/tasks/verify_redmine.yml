@@ -1,0 +1,335 @@
+# SPDX-FileCopyrightText: 2026 Slavi Pantaleev
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+# The checks that every scenario runs, whichever database backend Redmine was
+# pointed at. Scenarios include this file from their own verify.yml and then
+# add whatever proves their particular backend is the one carrying the data.
+#
+# The negative controls this file is built around were established by running
+# `docker.io/redmine:7.0.0-alpine` by hand, with no role and no configuration
+# at all:
+#
+# - the image's entrypoint writes its own `config/database.yml` whenever the
+#   role has not mounted one, falls back to SQLite, runs `rake db:migrate` and
+#   serves a perfectly healthy site. `GET /` answers 200 with
+#   `<title>Redmine</title>`. So neither "the unit is active" (the unit has
+#   `Restart=always`) nor "something answered 200 with Redmine's title" says
+#   anything at all about whether this role configured anything;
+# - because that fallback exists, a `redmine_database_type` of `mysql` or
+#   `postgres` that never reached the process looks exactly like one that did,
+#   from the outside. Asking the live ActiveRecord connection which adapter it
+#   is - and then asking the database server itself for the row - is what
+#   separates the two.
+
+- name: Load the role's defaults, for the literals the role ships with
+  # Only values that are plain literals in defaults/main.yml may be read from
+  # here - anything containing Jinja would be evaluated in this playbook's
+  # scope, where the role's other variables do not exist. Everything the
+  # scenario itself decides (`redmine_max_concurrent_ajax_uploads`, the ports,
+  # the database settings) comes from group_vars in molecule.yml instead,
+  # which is where those values are actually tuned.
+  ansible.builtin.include_vars:
+    file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+    name: redmine_role_defaults
+
+- name: Note where Redmine is reachable
+  ansible.builtin.set_fact:
+    redmine_molecule_http_url: "http://127.0.0.1:{{ redmine_container_http_host_bind_port }}"
+
+- name: Wait for the Redmine systemd service to become active (up to 3m)
+  ansible.builtin.systemd_service:
+    name: "{{ redmine_role_defaults.redmine_identifier }}.service"
+  register: redmine_service
+  until: redmine_service.status.ActiveState == 'active'
+  retries: 36
+  delay: 5
+
+- name: Assert that the Redmine systemd service is active
+  ansible.builtin.assert:
+    that: redmine_service.status.ActiveState == 'active'
+    fail_msg: "redmine.service is {{ redmine_service.status.ActiveState }}, not active"
+    success_msg: "redmine.service is active (which on its own proves little - the unit has Restart=always)"
+
+- name: Retrieve the Redmine service log for debugging
+  when: redmine_debug_service_enabled | bool
+  ansible.builtin.command:
+    cmd: "journalctl -xeu {{ redmine_role_defaults.redmine_identifier }}.service"
+  changed_when: false
+
+########################################################################
+#                                                                      #
+# Redmine is served, on the port the role was told to use              #
+#                                                                      #
+########################################################################
+
+# Redmine boots slowly: the entrypoint runs `bundle check`, `rake db:migrate`
+# and only then starts Puma. Under Molecule's `vfs` storage driver that takes
+# minutes, hence the long window.
+#
+# The request goes to the port `redmine_container_http_host_bind_port`
+# publishes, which the role maps to `redmine_container_http_port` inside the
+# container. In the postgres scenario those two deliberately differ, so a
+# regression in which `redmine_container_http_port` stops reaching the process
+# leaves the published port pointing at nothing and this task times out.
+- name: Wait for Redmine to answer over HTTP (up to 10m)
+  ansible.builtin.uri:
+    url: "{{ redmine_molecule_http_url }}/"
+    method: GET
+    status_code: [200]
+    follow_redirects: none
+    return_content: true
+  register: redmine_home_page
+  until: redmine_home_page.status == 200
+  retries: 120
+  delay: 5
+
+- name: Assert that what answered is Redmine
+  ansible.builtin.assert:
+    that: redmine_home_page.content is search('<title>Redmine</title>')
+    fail_msg: "The response on {{ redmine_molecule_http_url }}/ does not look like Redmine's home page"
+    success_msg: "Redmine's home page is served on {{ redmine_molecule_http_url }}/"
+
+########################################################################
+#                                                                      #
+# The image the role asked for is the image that is running            #
+#                                                                      #
+########################################################################
+
+# Built out of the leaf literals in defaults/main.yml rather than out of
+# `redmine_container_image_tag`, which is Jinja and cannot be read back here.
+# `redmine_version` is the literal Renovate edits, so a bump that resolves to
+# a tag which does not exist, or a container left over from an earlier run,
+# fails here. No scenario enables `redmine_container_image_customizations_enabled`,
+# so the image is the upstream one rather than a locally built derivative.
+- name: Ask Docker which image the Redmine container was created from
+  ansible.builtin.command:
+    argv:
+      - docker
+      - inspect
+      - "--format={{ '{{' }}.Config.Image{{ '}}' }}"
+      - "{{ redmine_role_defaults.redmine_identifier }}"
+  register: redmine_container_image_in_use
+  changed_when: false
+
+- name: Note the image reference defaults/main.yml adds up to
+  ansible.builtin.set_fact:
+    redmine_molecule_expected_image: >-
+      {{ redmine_role_defaults.redmine_container_image_registry_prefix_upstream_default }}redmine:{{
+      redmine_role_defaults.redmine_version }}-{{ redmine_role_defaults.redmine_distro }}
+
+- name: Assert that the running container uses the image defaults/main.yml asks for
+  ansible.builtin.assert:
+    that: redmine_container_image_in_use.stdout | trim == redmine_molecule_expected_image
+    fail_msg: >-
+      The container runs `{{ redmine_container_image_in_use.stdout | trim }}`,
+      not the `{{ redmine_molecule_expected_image }}` that defaults/main.yml asks for
+    success_msg: "The container runs `{{ redmine_molecule_expected_image }}`, as defaults/main.yml asks for"
+
+########################################################################
+#                                                                      #
+# The env file reaches the container                                   #
+#                                                                      #
+########################################################################
+
+- name: Read the environment of the Redmine process
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - env
+  register: redmine_container_env
+  changed_when: false
+
+# `PORT` is what the image's `rails server` command reads. Asserting it here
+# is the cheap half of the port check; the expensive half is that the HTTP
+# request above went through a published port mapped to it.
+- name: Assert that the env file carries the port, the timezone and the passthrough variable
+  ansible.builtin.assert:
+    that:
+      - ('PORT=' ~ redmine_container_http_port) in redmine_container_env.stdout_lines
+      - ('TZ=' ~ redmine_environment_variables_tz) in redmine_container_env.stdout_lines
+      - ('MOLECULE_MARKER=' ~ redmine_molecule_marker) in redmine_container_env.stdout_lines
+    fail_msg: >-
+      The container's environment does not carry PORT={{ redmine_container_http_port }},
+      TZ={{ redmine_environment_variables_tz }} and MOLECULE_MARKER={{ redmine_molecule_marker }}
+    success_msg: "The role's env file reached the container, passthrough variables included"
+
+########################################################################
+#                                                                      #
+# What the running application says about itself                       #
+#                                                                      #
+########################################################################
+
+# One `rails runner` invocation, answered from inside the booted application,
+# so every value below is read out of the live process rather than off the
+# disk. The payload is prefixed with a sentinel so that anything else Rails
+# decides to print cannot be mistaken for it.
+- name: Ask the running Redmine about itself
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - rails
+      - runner
+      - |
+        connection = ActiveRecord::Base.connection
+        payload = {
+          'version' => Redmine::VERSION.to_s,
+          'adapter' => connection.adapter_name,
+          'max_concurrent_ajax_uploads' => Redmine::Configuration['max_concurrent_ajax_uploads'],
+          'database' => ActiveRecord::Base.connection_db_config.configuration_hash.slice(
+            :adapter, :database, :host, :username, :socket
+          ),
+          'admin_must_change_passwd' => User.find_by(login: 'admin')&.must_change_passwd,
+        }
+        puts 'MOLECULE-PROBE-JSON: ' + payload.to_json
+  register: redmine_probe
+  changed_when: false
+
+- name: Note what the running Redmine reported
+  ansible.builtin.set_fact:
+    redmine_reported: >-
+      {{
+        redmine_probe.stdout_lines
+        | select('match', '^MOLECULE-PROBE-JSON: ')
+        | first
+        | regex_replace('^MOLECULE-PROBE-JSON: ', '')
+        | from_json
+      }}
+
+# `Redmine::VERSION` is four components (`7.0.0.stable`), while the literal
+# Renovate bumps is three, so the first three are compared rather than the
+# whole string.
+- name: Assert that the running Redmine is the version defaults/main.yml asks for
+  ansible.builtin.assert:
+    that: redmine_reported.version.split('.')[0:3] | join('.') == redmine_role_defaults.redmine_version
+    fail_msg: >-
+      The running Redmine reports `{{ redmine_reported.version }}`, which is not the
+      `{{ redmine_role_defaults.redmine_version }}` that defaults/main.yml asks for
+    success_msg: "The running Redmine reports {{ redmine_reported.version }}, as defaults/main.yml asks for"
+
+# The role renders configuration.yml from its own template and bind-mounts it
+# over the image's. `max_concurrent_ajax_uploads` is the cleanest witness for
+# that file having been read: Redmine's own built-in default is 2, and every
+# scenario sets a different value, so a Redmine reading anything but this
+# role's file cannot pass here.
+- name: Assert that the role's configuration.yml reached the process
+  ansible.builtin.assert:
+    that:
+      - redmine_reported.max_concurrent_ajax_uploads | int == redmine_max_concurrent_ajax_uploads | int
+      - redmine_reported.max_concurrent_ajax_uploads | int != 2
+    fail_msg: >-
+      Redmine reports max_concurrent_ajax_uploads={{ redmine_reported.max_concurrent_ajax_uploads }},
+      not the {{ redmine_max_concurrent_ajax_uploads }} this scenario configures
+      (2 would mean it never read the role's configuration.yml at all)
+    success_msg: >-
+      Redmine reports max_concurrent_ajax_uploads={{ redmine_reported.max_concurrent_ajax_uploads }},
+      so the role's configuration.yml is the file the process read
+
+- name: Assert that the database adapter in use is the one this scenario configures
+  ansible.builtin.assert:
+    that: redmine_reported.adapter == redmine_molecule_expected_adapter
+    fail_msg: >-
+      Redmine's live connection uses the `{{ redmine_reported.adapter }}` adapter,
+      not the `{{ redmine_molecule_expected_adapter }}` this scenario configures
+      (`SQLite` where another backend was expected means the image's entrypoint
+      wrote its own database.yml and fell back)
+    success_msg: "Redmine's live connection uses the `{{ redmine_reported.adapter }}` adapter, as this scenario configures"
+
+########################################################################
+#                                                                      #
+# A project survives a write and a read                                #
+#                                                                      #
+########################################################################
+
+# Redmine is an issue tracker, so the thing worth proving is that it can store
+# work and serve it back. Creating the project from inside the application
+# puts the write through whichever database the scenario configured, which is
+# what the per-scenario checks then go looking for on the other side.
+- name: Create a project inside the running Redmine
+  ansible.builtin.command:
+    argv:
+      - docker
+      - exec
+      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - rails
+      - runner
+      - |
+        project = Project.find_or_initialize_by(identifier: '{{ redmine_molecule_project_identifier }}')
+        project.name = '{{ redmine_molecule_project_name }}'
+        project.is_public = true
+        project.save!
+        puts 'MOLECULE-PROBE-PROJECT: ' + project.id.to_s
+  register: redmine_created_project
+  changed_when: true
+
+- name: Assert that creating the project succeeded
+  ansible.builtin.assert:
+    that: "redmine_created_project.stdout_lines | select('match', '^MOLECULE-PROBE-PROJECT: [0-9]+$') | list | length == 1"
+    fail_msg: "Creating the `{{ redmine_molecule_project_identifier }}` project did not report an id"
+    success_msg: "A project was created inside the running Redmine"
+
+- name: Read the project list back over HTTP
+  ansible.builtin.uri:
+    url: "{{ redmine_molecule_http_url }}/projects"
+    method: GET
+    status_code: [200]
+    follow_redirects: none
+    return_content: true
+  register: redmine_projects_page
+  changed_when: false
+
+- name: Assert that the project that was written is served back
+  ansible.builtin.assert:
+    that:
+      - redmine_projects_page.content is search('/projects/' ~ (redmine_molecule_project_identifier | regex_escape))
+      - redmine_projects_page.content is search(redmine_molecule_project_name | regex_escape)
+    fail_msg: >-
+      The project list served on {{ redmine_molecule_http_url }}/projects does not mention
+      `{{ redmine_molecule_project_identifier }}`, so what was written is not what is being served
+    success_msg: "The project written into the database is served back over HTTP, so Redmine is storing work"
+
+########################################################################
+#                                                                      #
+# The units the role installs alongside the service                    #
+#                                                                      #
+########################################################################
+
+- name: Check the reminder units the role installs
+  ansible.builtin.stat:
+    path: "/etc/systemd/system/{{ redmine_role_defaults.redmine_identifier }}{{ item }}"
+  register: redmine_reminder_units
+  loop:
+    - -send-reminders.service
+    - -send-reminders.timer
+
+- name: Assert that the reminder units were installed
+  ansible.builtin.assert:
+    that: redmine_reminder_units.results | map(attribute='stat.exists') | select | list | length == 2
+    fail_msg: "The redmine-send-reminders units are not both present under /etc/systemd/system"
+    success_msg: "The redmine-send-reminders service and timer are installed"
+
+########################################################################
+#                                                                      #
+# The default administrator account                                    #
+#                                                                      #
+########################################################################
+
+# `rake db:migrate` seeds an `admin` account whose password is `admin`.
+# Redmine marks it as having to change that password at first login, which is
+# the only thing standing between a fresh deployment and whoever reaches its
+# hostname first. Asserting the flag here means a future Redmine that stopped
+# setting it - or a role change that seeded an account of its own without it -
+# is noticed rather than shipped. The README documents what operators have to
+# do about it.
+- name: Assert that the seeded administrator must change its password at first login
+  ansible.builtin.assert:
+    that: redmine_reported.admin_must_change_passwd
+    fail_msg: >-
+      The seeded `admin` account does not have to change its password at first login,
+      so a fresh deployment is reachable with the well-known admin/admin credentials
+    success_msg: "The seeded `admin` account must change its password at first login"
