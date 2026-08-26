@@ -8,7 +8,7 @@
     "`versioning=semver` on the annotation in defaults/main.yml is what keeps the noise out of that decision. docker.io/library/redmine publishes over 560 tags; strict semver leaves only the real `X.Y.Z` releases, because the flavour suffixes (`-alpine`, `-alpine3.24`, `-bookworm`, `-trixie`, `-passenger`) parse as prereleases and are skipped as unstable, while the floating `7`, `7.0`, `latest` and `alpine` tags are not versions at all. The flavour is carried separately in `redmine_distro` and composed into `redmine_container_image_tag`, so the annotation stays on the leaf literal Renovate can safely edit."
   ],
   "extends": [
-    "github>mother-of-all-self-hosting/renovate-config#v1.0.0",
-    "github>mother-of-all-self-hosting/renovate-config//patch-automerge#v1.0.0"
+    "github>mother-of-all-self-hosting/renovate-config#v1.1.0",
+    "github>mother-of-all-self-hosting/renovate-config//patch-automerge#v1.1.0"
   ]
 }
