@@ -12,7 +12,7 @@
   tasks:
     - name: Run the checks shared by all Redmine scenarios
       ansible.builtin.include_tasks:
-        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/resources/tasks/verify_redmine.yml"
+        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
 
     # This scenario sets `redmine_database_type` to `sqlite`, and the role then
     # points Redmine at `db/sqlite/redmine.sqlite3` and bind-mounts

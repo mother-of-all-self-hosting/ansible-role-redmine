@@ -12,7 +12,7 @@
   tasks:
     - name: Run the checks shared by all Redmine scenarios
       ansible.builtin.include_tasks:
-        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/resources/tasks/verify_redmine.yml"
+        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
 
     # The role builds `redmine_config_database_host_postgres` out of
     # `redmine_database_postgres_socket_path_container` and writes it into
