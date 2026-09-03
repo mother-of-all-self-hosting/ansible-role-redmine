@@ -14,12 +14,7 @@
       ansible.builtin.include_tasks:
         file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
 
-    # This scenario sets `redmine_database_type` to `sqlite`, and the role then
-    # points Redmine at `db/sqlite/redmine.sqlite3` and bind-mounts
-    # `redmine_database_path` over `db/sqlite`, so the file survives the
-    # container. The image's own SQLite fallback uses a different, unmounted
-    # path (`sqlite/redmine.db`), so both checks below distinguish the role's
-    # database.yml from the one the entrypoint writes when it finds none.
+    # Verify Redmine stores data on the database actually by reading the data straight out of that file.
     - name: Assert that the live connection reads the file the role configured
       ansible.builtin.assert:
         that: redmine_reported.database.database == redmine_role_defaults.redmine_database_filename

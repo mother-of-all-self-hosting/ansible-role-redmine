@@ -33,11 +33,8 @@
           database the role configures
         success_msg: "Redmine's live connection uses the socket, user and database the role configures"
 
-    # Pointing `redmine_database_type` at `postgres` is only worth testing if
-    # it actually moves the data. Asking Postgres itself for the project that
-    # was created inside Redmine is what settles that; a `database.yml` sitting
-    # on disk would look just as convincing while Redmine quietly kept a SQLite
-    # file of its own.
+    # Verify Redmine stores data on the database actually by asking Postgres for the project that
+    # was created inside it.
     #
     # The query goes in as the role's own database user, so the credentials
     # the role configured are under test here too.
