@@ -42,12 +42,12 @@
     - name: Assert that the live connection uses the socket the role mounts
       ansible.builtin.assert:
         that:
-          - redmine_reported.database.socket == redmine_role_defaults.redmine_database_mysql_socket_path_container ~ '/mysqld.sock'
+          - redmine_reported.database.socket == redmine_defaults.redmine_database_mysql_socket_path_container ~ '/mysqld.sock'
           - redmine_reported.database.username == redmine_database_mysql_username
           - redmine_reported.database.database == redmine_database_name
         fail_msg: >-
           Redmine's live connection is {{ redmine_reported.database }}, not the
-          `{{ redmine_role_defaults.redmine_database_mysql_socket_path_container }}/mysqld.sock` socket,
+          `{{ redmine_defaults.redmine_database_mysql_socket_path_container }}/mysqld.sock` socket,
           `{{ redmine_database_mysql_username }}` user and `{{ redmine_database_name }}`
           database the role configures
         success_msg: "Redmine's live connection uses the socket, user and database the role configures"
@@ -86,7 +86,7 @@
         argv:
           - docker
           - exec
-          - "{{ redmine_role_defaults.redmine_identifier }}"
+          - "{{ redmine_defaults.redmine_identifier }}"
           - test
           - -e
           - /usr/src/redmine/sqlite/redmine.db

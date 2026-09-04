@@ -23,16 +23,13 @@
 #   is - and then asking the database server itself for the row - is what
 #   separates the two.
 
-- name: Load the role's defaults, for the literals the role ships with
-  # Only values that are plain literals in defaults/main.yml may be read from
-  # here - anything containing Jinja would be evaluated in this playbook's
-  # scope, where the role's other variables do not exist. Everything the
-  # scenario itself decides (`redmine_max_concurrent_ajax_uploads`, the ports,
-  # the database settings) comes from group_vars in molecule.yml instead,
-  # which is where those values are actually tuned.
+# The role is not included in this playbook, so its defaults are not in
+# scope. Reading defaults/main.yml directly ties the version assertion
+# below.
+- name: Load the role defaults
   ansible.builtin.include_vars:
     file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-    name: redmine_role_defaults
+    name: redmine_defaults
 
 - name: Note where Redmine is reachable
   ansible.builtin.set_fact:
@@ -40,7 +37,7 @@
 
 - name: Wait for the Redmine systemd service to become active (up to 3m)
   ansible.builtin.systemd_service:
-    name: "{{ redmine_role_defaults.redmine_identifier }}.service"
+    name: "{{ redmine_defaults.redmine_identifier }}.service"
   register: redmine_service
   until: redmine_service.status.ActiveState == 'active'
   retries: 36
@@ -55,7 +52,7 @@
 - name: Retrieve the Redmine service log for debugging
   when: redmine_debug_service_enabled | bool
   ansible.builtin.command:
-    cmd: "journalctl -xeu {{ redmine_role_defaults.redmine_identifier }}.service"
+    cmd: "journalctl -xeu {{ redmine_defaults.redmine_identifier }}.service"
   changed_when: false
 
 ########################################################################
@@ -109,15 +106,15 @@
       - docker
       - inspect
       - "--format={{ '{{' }}.Config.Image{{ '}}' }}"
-      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - "{{ redmine_defaults.redmine_identifier }}"
   register: redmine_container_image_in_use
   changed_when: false
 
 - name: Note the image reference defaults/main.yml adds up to
   ansible.builtin.set_fact:
     redmine_molecule_expected_image: >-
-      {{ redmine_role_defaults.redmine_container_image_registry_prefix_upstream_default }}redmine:{{
-      redmine_role_defaults.redmine_version }}-{{ redmine_role_defaults.redmine_distro }}
+      {{ redmine_defaults.redmine_container_image_registry_prefix_upstream_default }}redmine:{{
+      redmine_defaults.redmine_version }}-{{ redmine_defaults.redmine_distro }}
 
 - name: Assert that the running container uses the image defaults/main.yml asks for
   ansible.builtin.assert:
@@ -138,7 +135,7 @@
     argv:
       - docker
       - exec
-      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - "{{ redmine_defaults.redmine_identifier }}"
       - env
   register: redmine_container_env
   changed_when: false
@@ -172,7 +169,7 @@
     argv:
       - docker
       - exec
-      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - "{{ redmine_defaults.redmine_identifier }}"
       - rails
       - runner
       - |
@@ -206,10 +203,10 @@
 # whole string.
 - name: Assert that the running Redmine is the version defaults/main.yml asks for
   ansible.builtin.assert:
-    that: redmine_reported.version.split('.')[0:3] | join('.') == redmine_role_defaults.redmine_version
+    that: redmine_reported.version.split('.')[0:3] | join('.') == redmine_defaults.redmine_version
     fail_msg: >-
       The running Redmine reports `{{ redmine_reported.version }}`, which is not the
-      `{{ redmine_role_defaults.redmine_version }}` that defaults/main.yml asks for
+      `{{ redmine_defaults.redmine_version }}` that defaults/main.yml asks for
     success_msg: "The running Redmine reports {{ redmine_reported.version }}, as defaults/main.yml asks for"
 
 # The role renders configuration.yml from its own template and bind-mounts it
@@ -255,7 +252,7 @@
     argv:
       - docker
       - exec
-      - "{{ redmine_role_defaults.redmine_identifier }}"
+      - "{{ redmine_defaults.redmine_identifier }}"
       - rails
       - runner
       - |
@@ -301,7 +298,7 @@
 
 - name: Check the reminder units the role installs
   ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ redmine_role_defaults.redmine_identifier }}{{ item }}"
+    path: "/etc/systemd/system/{{ redmine_defaults.redmine_identifier }}{{ item }}"
   register: redmine_reminder_units
   loop:
     - -send-reminders.service

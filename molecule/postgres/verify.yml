@@ -23,12 +23,12 @@
     - name: Assert that the live connection uses the socket the role mounts
       ansible.builtin.assert:
         that:
-          - redmine_reported.database.host == redmine_role_defaults.redmine_database_postgres_socket_path_container
+          - redmine_reported.database.host == redmine_defaults.redmine_database_postgres_socket_path_container
           - redmine_reported.database.username == redmine_database_postgres_username
           - redmine_reported.database.database == redmine_database_name
         fail_msg: >-
           Redmine's live connection is {{ redmine_reported.database }}, not the
-          `{{ redmine_role_defaults.redmine_database_postgres_socket_path_container }}` socket directory,
+          `{{ redmine_defaults.redmine_database_postgres_socket_path_container }}` socket directory,
           `{{ redmine_database_postgres_username }}` user and `{{ redmine_database_name }}`
           database the role configures
         success_msg: "Redmine's live connection uses the socket, user and database the role configures"
@@ -67,7 +67,7 @@
         argv:
           - docker
           - exec
-          - "{{ redmine_role_defaults.redmine_identifier }}"
+          - "{{ redmine_defaults.redmine_identifier }}"
           - test
           - -e
           - /usr/src/redmine/sqlite/redmine.db
@@ -93,11 +93,11 @@
     - name: Assert that this scenario runs Redmine on a non-default port
       ansible.builtin.assert:
         that:
-          - redmine_container_http_port | int != redmine_role_defaults.redmine_container_http_port | int
+          - redmine_container_http_port | int != redmine_defaults.redmine_container_http_port | int
           - redmine_container_http_port | int != redmine_container_http_host_bind_port | int
         fail_msg: >-
           This scenario is meant to run Redmine on a port other than the role's default
-          ({{ redmine_role_defaults.redmine_container_http_port }}) and other than the published
+          ({{ redmine_defaults.redmine_container_http_port }}) and other than the published
           host port ({{ redmine_container_http_host_bind_port }}), so that the shared HTTP check
           proves `redmine_container_http_port` reaches the process
         success_msg: >-

@@ -17,12 +17,12 @@
     # Verify Redmine stores data on the database actually by reading the data straight out of that file.
     - name: Assert that the live connection reads the file the role configured
       ansible.builtin.assert:
-        that: redmine_reported.database.database == redmine_role_defaults.redmine_database_filename
+        that: redmine_reported.database.database == redmine_defaults.redmine_database_filename
         fail_msg: >-
           Redmine's live connection reads `{{ redmine_reported.database.database }}`,
-          not the `{{ redmine_role_defaults.redmine_database_filename }}` the role configures
+          not the `{{ redmine_defaults.redmine_database_filename }}` the role configures
           (`sqlite/redmine.db` would mean the image entrypoint's own fallback)
-        success_msg: "Redmine's live connection reads `{{ redmine_role_defaults.redmine_database_filename }}`, as the role configures"
+        success_msg: "Redmine's live connection reads `{{ redmine_defaults.redmine_database_filename }}`, as the role configures"
 
     - name: Read the projects Redmine stored, out of its SQLite database
       ansible.builtin.command:
