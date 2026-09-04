@@ -112,13 +112,11 @@
       {{ redmine_defaults.redmine_container_image_registry_prefix_upstream_default }}redmine:{{
       redmine_defaults.redmine_version }}-{{ redmine_defaults.redmine_distro }}
 
-- name: Assert that the running container uses the image defaults/main.yml asks for
+- name: Assert the running Redmine is the version this role installs
   ansible.builtin.assert:
     that: redmine_container_image_in_use.stdout | trim == redmine_molecule_expected_image
-    fail_msg: >-
-      The container runs `{{ redmine_container_image_in_use.stdout | trim }}`,
-      not the `{{ redmine_molecule_expected_image }}` that defaults/main.yml asks for
-    success_msg: "The container runs `{{ redmine_molecule_expected_image }}`, as defaults/main.yml asks for"
+    fail_msg: "Redmine reports {{ redmine_container_image_in_use.stdout | trim | default('none') }}, expected {{ redmine_molecule_expected_image }}"
+    success_msg: "Redmine reports {{ redmine_container_image_in_use.stdout | trim }}"
 
 ########################################################################
 #                                                                      #
