@@ -96,10 +96,6 @@
 
 # Built out of the leaf literals in defaults/main.yml rather than out of
 # `redmine_container_image_tag`, which is Jinja and cannot be read back here.
-# `redmine_version` is the literal Renovate edits, so a bump that resolves to
-# a tag which does not exist, or a container left over from an earlier run,
-# fails here. No scenario enables `redmine_container_image_customizations_enabled`,
-# so the image is the upstream one rather than a locally built derivative.
 - name: Ask Docker which image the Redmine container was created from
   ansible.builtin.command:
     argv:
