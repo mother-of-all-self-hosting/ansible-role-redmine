@@ -28,7 +28,7 @@
 # below.
 - name: Load the role defaults
   ansible.builtin.include_vars:
-    file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+    file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
     name: redmine_defaults
 
 - name: Note where Redmine is reachable
