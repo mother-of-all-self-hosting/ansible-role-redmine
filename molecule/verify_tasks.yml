@@ -104,11 +104,7 @@
 # `redmine_container_image_tag`, which is Jinja and cannot be read back here.
 - name: Ask Docker which image the Redmine container was created from
   ansible.builtin.command:
-    argv:
-      - docker
-      - inspect
-      - "--format={{ '{{' }}.Config.Image{{ '}}' }}"
-      - "{{ redmine_defaults.redmine_identifier }}"
+    cmd: "docker inspect --format={{ '{{' }}.Config.Image{{ '}}' }} {{ redmine_defaults.redmine_identifier }}"
   register: redmine_container_image_in_use
   changed_when: false
 
@@ -132,11 +128,7 @@
 
 - name: Read the environment of the Redmine process
   ansible.builtin.command:
-    argv:
-      - docker
-      - exec
-      - "{{ redmine_defaults.redmine_identifier }}"
-      - env
+    cmd: docker exec {{ redmine_defaults.redmine_identifier }} env
   register: redmine_container_env
   changed_when: false
 
