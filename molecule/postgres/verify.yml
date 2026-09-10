@@ -67,7 +67,7 @@
         argv:
           - docker
           - exec
-          - "{{ redmine_defaults.redmine_identifier }}"
+          - redmine
           - test
           - -e
           - /usr/src/redmine/sqlite/redmine.db

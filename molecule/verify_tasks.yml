@@ -33,7 +33,7 @@
 
 - name: Wait for the Redmine systemd service to become active (up to 180s)
   ansible.builtin.systemd_service:
-    name: "{{ redmine_defaults.redmine_identifier }}.service"
+    name: redmine.service
   register: redmine_service
   until: redmine_service.status.ActiveState == 'active'
   retries: 36
@@ -54,7 +54,7 @@
 - name: Retrieve the Redmine systemd service log for debugging
   when: redmine_debug_service_enabled | bool
   ansible.builtin.command:
-    cmd: "journalctl --no-pager --output=cat --unit={{ redmine_defaults.redmine_identifier }}.service"
+    cmd: journalctl --no-pager --output=cat --unit=redmine.service
   changed_when: false
 
 ########################################################################
@@ -104,7 +104,7 @@
 # `redmine_container_image_tag`, which is Jinja and cannot be read back here.
 - name: Ask Docker which image the Redmine container was created from
   ansible.builtin.command:
-    cmd: "docker inspect --format={{ '{{' }}.Config.Image{{ '}}' }} {{ redmine_defaults.redmine_identifier }}"
+    cmd: "docker inspect --format={{ '{{' }}.Config.Image{{ '}}' }} redmine"
   register: redmine_container_image_in_use
   changed_when: false
 
@@ -128,7 +128,7 @@
 
 - name: Read the environment of the Redmine process
   ansible.builtin.command:
-    cmd: docker exec {{ redmine_defaults.redmine_identifier }} env
+    cmd: docker exec redmine env
   register: redmine_container_env
   changed_when: false
 
@@ -161,7 +161,7 @@
     argv:
       - docker
       - exec
-      - "{{ redmine_defaults.redmine_identifier }}"
+      - redmine
       - rails
       - runner
       - |
@@ -244,7 +244,7 @@
     argv:
       - docker
       - exec
-      - "{{ redmine_defaults.redmine_identifier }}"
+      - redmine
       - rails
       - runner
       - |
@@ -290,7 +290,7 @@
 
 - name: Check the reminder units the role installs
   ansible.builtin.stat:
-    path: "/etc/systemd/system/{{ redmine_defaults.redmine_identifier }}{{ item }}"
+    path: "/etc/systemd/system/redmine{{ item }}"
   register: redmine_reminder_units
   loop:
     - -send-reminders.service
