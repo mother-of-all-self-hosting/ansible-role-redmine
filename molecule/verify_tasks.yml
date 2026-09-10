@@ -31,10 +31,6 @@
     file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
     name: redmine_defaults
 
-- name: Note where Redmine is reachable
-  ansible.builtin.set_fact:
-    redmine_molecule_http_url: "http://127.0.0.1:{{ redmine_container_http_host_bind_port }}"
-
 - name: Wait for the Redmine systemd service to become active (up to 180s)
   ansible.builtin.systemd_service:
     name: "{{ redmine_defaults.redmine_identifier }}.service"
@@ -66,6 +62,10 @@
 # Redmine is served, on the port the role was told to use              #
 #                                                                      #
 ########################################################################
+
+- name: Note where Redmine is reachable
+  ansible.builtin.set_fact:
+    redmine_molecule_http_url: "http://127.0.0.1:{{ redmine_container_http_host_bind_port }}"
 
 # Redmine boots slowly: the entrypoint runs `bundle check`, `rake db:migrate`
 # and only then starts Puma. Under Molecule's `vfs` storage driver that takes
