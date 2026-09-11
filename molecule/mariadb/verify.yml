@@ -9,6 +9,12 @@
   hosts: all
   become: true
   gather_facts: false
+
+  vars:
+    redmine_verify_units:
+      - redmine.service
+      - mariadb.service
+
   tasks:
     - name: Run the checks shared by all Redmine scenarios
       ansible.builtin.include_tasks:
