@@ -18,99 +18,99 @@
   tasks:
     - name: Verify that Redmine works
       block:
-    - name: Run the checks shared by all Redmine scenarios
-      ansible.builtin.include_tasks:
-        file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
+        - name: Run the checks shared by all Redmine scenarios
+          ansible.builtin.include_tasks:
+            file: "{{ lookup('ansible.builtin.env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule/verify_tasks.yml"
 
-    # This scenario is the one that serves Redmine under a path prefix. A
-    # reverse proxy strips that prefix, so Redmine keeps routing at `/` - what
-    # has to change is the URLs Redmine generates, and it only learns about
-    # the prefix through `RAILS_RELATIVE_URL_ROOT` in the role's env file.
-    # Without it Redmine emits `/assets/...`, which a browser would send back
-    # to a path the proxy does not route.
-    - name: Assert that the path prefix reached the container
-      ansible.builtin.assert:
-        that: ('RAILS_RELATIVE_URL_ROOT=' ~ redmine_path_prefix) in redmine_container_env.stdout_lines
-        fail_msg: "The container's environment does not carry RAILS_RELATIVE_URL_ROOT={{ redmine_path_prefix }}"
-        success_msg: "The container's environment carries RAILS_RELATIVE_URL_ROOT={{ redmine_path_prefix }}"
+        # This scenario is the one that serves Redmine under a path prefix. A
+        # reverse proxy strips that prefix, so Redmine keeps routing at `/` - what
+        # has to change is the URLs Redmine generates, and it only learns about
+        # the prefix through `RAILS_RELATIVE_URL_ROOT` in the role's env file.
+        # Without it Redmine emits `/assets/...`, which a browser would send back
+        # to a path the proxy does not route.
+        - name: Assert that the path prefix reached the container
+          ansible.builtin.assert:
+            that: ('RAILS_RELATIVE_URL_ROOT=' ~ redmine_path_prefix) in redmine_container_env.stdout_lines
+            fail_msg: "The container's environment does not carry RAILS_RELATIVE_URL_ROOT={{ redmine_path_prefix }}"
+            success_msg: "The container's environment carries RAILS_RELATIVE_URL_ROOT={{ redmine_path_prefix }}"
 
-    - name: Assert that the URLs Redmine generates carry the path prefix
-      ansible.builtin.assert:
-        that: redmine_home_page.content is search((redmine_path_prefix ~ '/assets/') | regex_escape)
-        fail_msg: >-
-          Redmine's home page references assets outside `{{ redmine_path_prefix }}/assets/`,
-          so a reverse proxy serving it under that prefix would hand the browser dead links
-        success_msg: "Redmine generates its URLs under `{{ redmine_path_prefix }}`, as the role configures"
+        - name: Assert that the URLs Redmine generates carry the path prefix
+          ansible.builtin.assert:
+            that: redmine_home_page.content is search((redmine_path_prefix ~ '/assets/') | regex_escape)
+            fail_msg: >-
+              Redmine's home page references assets outside `{{ redmine_path_prefix }}/assets/`,
+              so a reverse proxy serving it under that prefix would hand the browser dead links
+            success_msg: "Redmine generates its URLs under `{{ redmine_path_prefix }}`, as the role configures"
 
-    # The role builds `redmine_config_database_host_mysql` out of
-    # `redmine_database_mysql_socket_path_container` and writes it into
-    # database.yml as `socket:`. Reading it back off the live connection is
-    # what proves the Unix-socket wiring, rather than some TCP connection that
-    # happened to work, is what Redmine is using.
-    - name: Assert that the live connection uses the socket the role mounts
-      ansible.builtin.assert:
-        that:
-          - redmine_reported.database.socket == redmine_defaults.redmine_database_mysql_socket_path_container ~ '/mysqld.sock'
-          - redmine_reported.database.username == redmine_database_mysql_username
-          - redmine_reported.database.database == redmine_database_name
-        fail_msg: >-
-          Redmine's live connection is {{ redmine_reported.database }}, not the
-          `{{ redmine_defaults.redmine_database_mysql_socket_path_container }}/mysqld.sock` socket,
-          `{{ redmine_database_mysql_username }}` user and `{{ redmine_database_name }}`
-          database the role configures
-        success_msg: "Redmine's live connection uses the socket, user and database the role configures"
+        # The role builds `redmine_config_database_host_mysql` out of
+        # `redmine_database_mysql_socket_path_container` and writes it into
+        # database.yml as `socket:`. Reading it back off the live connection is
+        # what proves the Unix-socket wiring, rather than some TCP connection that
+        # happened to work, is what Redmine is using.
+        - name: Assert that the live connection uses the socket the role mounts
+          ansible.builtin.assert:
+            that:
+              - redmine_reported.database.socket == redmine_defaults.redmine_database_mysql_socket_path_container ~ '/mysqld.sock'
+              - redmine_reported.database.username == redmine_database_mysql_username
+              - redmine_reported.database.database == redmine_database_name
+            fail_msg: >-
+              Redmine's live connection is {{ redmine_reported.database }}, not the
+              `{{ redmine_defaults.redmine_database_mysql_socket_path_container }}/mysqld.sock` socket,
+              `{{ redmine_database_mysql_username }}` user and `{{ redmine_database_name }}`
+              database the role configures
+            success_msg: "Redmine's live connection uses the socket, user and database the role configures"
 
-    # Verify Redmine stores data on the database actually by asking MariaDB for the project that
-    # was created inside it.
-    #
-    # The query goes in as the role's own database user, so the credentials
-    # the role configured are under test here too.
-    - name: Read the projects Redmine stored, out of the MariaDB database
-      ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - "{{ mariadb_identifier | default('mariadb') }}"
-          - mariadb
-          - "--user={{ redmine_database_mysql_username }}"
-          - "--password={{ redmine_database_mysql_password }}"
-          - --batch
-          - --skip-column-names
-          - "{{ redmine_database_name }}"
-          - "--execute=SELECT identifier FROM projects ORDER BY id"
-      register: redmine_mariadb_projects
-      changed_when: false
+        # Verify Redmine stores data on the database actually by asking MariaDB for the project that
+        # was created inside it.
+        #
+        # The query goes in as the role's own database user, so the credentials
+        # the role configured are under test here too.
+        - name: Read the projects Redmine stored, out of the MariaDB database
+          ansible.builtin.command:
+            argv:
+              - docker
+              - exec
+              - "{{ mariadb_identifier | default('mariadb') }}"
+              - mariadb
+              - "--user={{ redmine_database_mysql_username }}"
+              - "--password={{ redmine_database_mysql_password }}"
+              - --batch
+              - --skip-column-names
+              - "{{ redmine_database_name }}"
+              - "--execute=SELECT identifier FROM projects ORDER BY id"
+          register: redmine_mariadb_projects
+          changed_when: false
 
-    - name: Assert that the MariaDB database holds the project that was created
-      ansible.builtin.assert:
-        that: redmine_mariadb_projects.stdout_lines == [redmine_molecule_project_identifier]
-        fail_msg: >-
-          The `{{ redmine_database_name }}` database holds {{ redmine_mariadb_projects.stdout_lines }},
-          not the `{{ redmine_molecule_project_identifier }}` that was created
-        success_msg: "The `{{ redmine_database_name }}` MariaDB database holds the project that was created"
+        - name: Assert that the MariaDB database holds the project that was created
+          ansible.builtin.assert:
+            that: redmine_mariadb_projects.stdout_lines == [redmine_molecule_project_identifier]
+            fail_msg: >-
+              The `{{ redmine_database_name }}` database holds {{ redmine_mariadb_projects.stdout_lines }},
+              not the `{{ redmine_molecule_project_identifier }}` that was created
+            success_msg: "The `{{ redmine_database_name }}` MariaDB database holds the project that was created"
 
-    - name: Check whether Redmine also wrote the image entrypoint's SQLite database
-      ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - redmine
-          - test
-          - -e
-          - /usr/src/redmine/sqlite/redmine.db
-      register: redmine_sqlite_fallback
-      changed_when: false
-      failed_when: false
+        - name: Check whether Redmine also wrote the image entrypoint's SQLite database
+          ansible.builtin.command:
+            argv:
+              - docker
+              - exec
+              - redmine
+              - test
+              - -e
+              - /usr/src/redmine/sqlite/redmine.db
+          register: redmine_sqlite_fallback
+          changed_when: false
+          failed_when: false
 
-    # The counterpart of the checks above. If the role's database.yml never
-    # reached the container, the entrypoint writes one of its own and falls
-    # back to SQLite at this path - and everything visible from the outside
-    # still looks perfectly healthy.
-    - name: Assert that Redmine did not fall back to SQLite
-      ansible.builtin.assert:
-        that: redmine_sqlite_fallback.rc != 0
-        fail_msg: "Redmine wrote a SQLite database at `/usr/src/redmine/sqlite/redmine.db` despite being pointed at MariaDB"
-        success_msg: "Redmine wrote no SQLite fallback, so MariaDB is its only store"
+        # The counterpart of the checks above. If the role's database.yml never
+        # reached the container, the entrypoint writes one of its own and falls
+        # back to SQLite at this path - and everything visible from the outside
+        # still looks perfectly healthy.
+        - name: Assert that Redmine did not fall back to SQLite
+          ansible.builtin.assert:
+            that: redmine_sqlite_fallback.rc != 0
+            fail_msg: "Redmine wrote a SQLite database at `/usr/src/redmine/sqlite/redmine.db` despite being pointed at MariaDB"
+            success_msg: "Redmine wrote no SQLite fallback, so MariaDB is its only store"
 
       rescue:
         # Whatever went wrong, the reason is almost always in the systemd service log.
