@@ -30,6 +30,7 @@ provisioner:
       all:
         # Helper variables
         redmine_debug_service_enabled: false
+        redmine_restarts_check_enabled: true
         # The project verify.yml creates inside the running Redmine and then
         # goes looking for over HTTP and in this scenario's database. The
         # identifier differs per scenario, so a container left over from
