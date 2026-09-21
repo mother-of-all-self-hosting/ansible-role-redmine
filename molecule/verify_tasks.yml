@@ -116,7 +116,7 @@
   ansible.builtin.set_fact:
     redmine_molecule_expected_image: >-
       {{ redmine_defaults.redmine_container_image_registry_prefix_upstream_default }}redmine:{{
-      redmine_defaults.redmine_version }}-{{ redmine_defaults.redmine_distro }}
+      redmine_defaults.redmine_version }}-{{ redmine_defaults.redmine_distro_variant }}
 
 - name: Assert the running Redmine is the version this role installs
   ansible.builtin.assert:

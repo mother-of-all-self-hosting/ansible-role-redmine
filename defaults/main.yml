@@ -24,7 +24,7 @@ redmine_customized_container_src_path: "{{ redmine_base_path }}/customized-conta
 
 # renovate: datasource=docker depName=redmine versioning=semver
 redmine_version: 7.0.1
-redmine_distro: alpine
+redmine_distro_variant: alpine
 
 redmine_uid: ""
 redmine_gid: ""
@@ -41,7 +41,7 @@ redmine_hostname: ""
 redmine_path_prefix: /
 
 redmine_container_image: "{{ redmine_container_image_registry_prefix }}redmine:{{ redmine_container_image_tag }}"
-redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
+redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro_variant }}"
 redmine_container_image_registry_prefix: "{{ redmine_container_image_registry_prefix_upstream }}"
 redmine_container_image_registry_prefix_upstream: "{{ redmine_container_image_registry_prefix_upstream_default }}"
 redmine_container_image_registry_prefix_upstream_default: docker.io/
@@ -71,7 +71,7 @@ redmine_container_image_customizations_build_tools_installation_enabled: false
 # The packages to install when `redmine_container_image_customizations_build_tools_installation_enabled` is `true`.
 # We sometimes (as is the case for `bigdecimal`) may be able to get by with installing a small set of packages (e.g. `musl-dev`, `gcc`, `make`),
 # but installing all of `build-base` (or `build-essential` on Debian-based systems) is a safer bet.
-redmine_container_image_customizations_build_tools_installation_packages: "{{ ['build-base'] if redmine_distro.startswith('alpine') else ['build-essential'] }}"
+redmine_container_image_customizations_build_tools_installation_packages: "{{ ['build-base'] if redmine_distro_variant.startswith('alpine') else ['build-essential'] }}"
 
 # redmine_container_image_customizations_dockerfile_body_custom contains your custom Dockerfile steps
 # for building your customized Redmine image based on the original (upstream) image (`redmine_container_image`).

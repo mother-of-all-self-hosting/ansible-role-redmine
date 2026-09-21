@@ -70,7 +70,7 @@ They are built around what an *unconfigured* Redmine image does, which was estab
 
 What the scenarios therefore assert instead:
 
-- the container runs the image `redmine_version`/`redmine_distro` add up to, and the booted application reports that same version;
+- the container runs the image `redmine_version`/`redmine_distro_variant` add up to, and the booted application reports that same version;
 - the role's `configuration.yml` reached the process, by reading back a `max_concurrent_ajax_uploads` that differs both from Redmine's own built-in default and between scenarios;
 - the role's env file reached the container, including the `PORT` that decides which port Redmine binds and a marker passed through `redmine_environment_variables_additional_variables`;
 - the live ActiveRecord connection uses the adapter, socket, user and database the scenario configured;

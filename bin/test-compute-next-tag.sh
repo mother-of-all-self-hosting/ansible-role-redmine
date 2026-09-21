@@ -56,8 +56,8 @@ scenario() {
 		# redmine_version: 9.9.9
 		# renovate: datasource=docker depName=redmine versioning=semver
 		redmine_version: 7.0.0
-		redmine_distro: alpine
-		redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro }}"
+		redmine_distro_variant: alpine
+		redmine_container_image_tag: "{{ redmine_version }}-{{ redmine_distro_variant }}"
 		redmine_container_image_customized: "localhost/redmine:{{ redmine_container_image_tag }}-customized"
 	YAML
 	printf 'placeholder\n' > meta/main.yml
@@ -105,7 +105,7 @@ expect() {
 
 bump_version="sed -i 's|^redmine_version: 7.0.0|redmine_version: 7.0.1|' defaults/main.yml"
 revert_version="sed -i 's|^redmine_version: 7.0.1|redmine_version: 7.0.0|' defaults/main.yml"
-bump_distro="sed -i 's|^redmine_distro: alpine|redmine_distro: bookworm|' defaults/main.yml"
+bump_distro="sed -i 's|^redmine_distro_variant: alpine|redmine_distro_variant: bookworm|' defaults/main.yml"
 edit_task="printf 'a task\n' >> tasks/main.yml"
 edit_template="printf 'a line\n' >> templates/env.j2"
 edit_meta="printf 'a line\n' >> meta/main.yml"
@@ -129,7 +129,7 @@ expect 'README'   ''         "$(merge "$edit_readme")"
 expect 'a script' ''         "$(merge "$edit_script")"
 expect 'meta'     v7.0.0-2   "$(merge "$edit_meta")"
 
-# The image tag is built from `redmine_distro` as well, so a change of flavour
+# The image tag is built from `redmine_distro_variant` as well, so a change of flavour
 # ships a different image without touching `redmine_version`. It has to be
 # released, and under the version that is still in the file.
 scenario 'A distro change, which moves the image but not the version'
