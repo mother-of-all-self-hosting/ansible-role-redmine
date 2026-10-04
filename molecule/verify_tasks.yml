@@ -72,8 +72,8 @@
     redmine_molecule_http_url: "http://127.0.0.1:{{ redmine_container_http_host_bind_port }}"
 
 # Redmine boots slowly: the entrypoint runs `bundle check`, `rake db:migrate`
-# and only then starts Puma. Under Molecule's `vfs` storage driver that takes
-# minutes, hence the long window.
+# and only then starts Puma. In the Molecule instance that can take minutes,
+# hence the long window.
 #
 # The request goes to the port `redmine_container_http_host_bind_port`
 # publishes, which the role maps to `redmine_container_http_port` inside the
