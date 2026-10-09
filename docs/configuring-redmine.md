@@ -19,61 +19,61 @@ SPDX-FileCopyrightText: 2024-2026 Suguru Hirahara
 SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
-# Setting up Vaultwarden
+# Setting up Redmine
 
-This is an [Ansible](https://www.ansible.com/) role which installs [Vaultwarden](https://github.com/dani-garcia/vaultwarden) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [Redmine](https://github.com/dani-garcia/redmine) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-Vaultwarden is an unofficial [Bitwarden](https://bitwarden.com/) compatible server.
+Redmine is an unofficial [Bitwarden](https://bitwarden.com/) compatible server.
 
-See the project's [documentation](https://github.com/dani-garcia/vaultwarden/blob/main/README.md) to learn what Vaultwarden does and why it might be useful to you.
+See the project's [documentation](https://github.com/dani-garcia/redmine/blob/main/README.md) to learn what Redmine does and why it might be useful to you.
 
 ## Prerequisites
 
-To run a Vaultwarden instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server, [Postgres](https://www.postgresql.org/), or [SQLite](https://www.sqlite.org/). The SQLite database file will be automatically created by the service if it is enabled.
+To run a Redmine instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server, [Postgres](https://www.postgresql.org/), or [SQLite](https://www.sqlite.org/). The SQLite database file will be automatically created by the service if it is enabled.
 
 If you are looking for Ansible roles for a MySQL compatible server or Postgres, you can check out [ansible-role-mariadb](https://github.com/mother-of-all-self-hosting/ansible-role-mariadb) and [ansible-role-postgres](https://github.com/mother-of-all-self-hosting/ansible-role-postgres), both of which are maintained by the [Mother-of-All-Self-Hosting (MASH)](https://github.com/mother-of-all-self-hosting) team.
 
 ## Adjusting the playbook configuration
 
-To enable Vaultwarden with this role, add the following configuration to your `vars.yml` file.
+To enable Redmine with this role, add the following configuration to your `vars.yml` file.
 
 **Note**: the path should be something like `inventory/host_vars/mash.example.com/vars.yml` if you use the [MASH Ansible playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
 
 ```yaml
 ########################################################################
 #                                                                      #
-# vaultwarden                                                          #
+# redmine                                                              #
 #                                                                      #
 ########################################################################
 
-vaultwarden_enabled: true
+redmine_enabled: true
 
 ########################################################################
 #                                                                      #
-# /vaultwarden                                                         #
+# /redmine                                                             #
 #                                                                      #
 ########################################################################
 ```
 
 ### Set the hostname
 
-To enable Vaultwarden you need to set the hostname as well. To do so, add the following configuration to your `vars.yml` file. Make sure to replace `example.com` with your own value.
+To enable Redmine you need to set the hostname as well. To do so, add the following configuration to your `vars.yml` file. Make sure to replace `example.com` with your own value.
 
 ```yaml
-vaultwarden_hostname: "example.com"
+redmine_hostname: "example.com"
 ```
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
 >[!NOTE]
-> For additional security, it is recommended to host the Vaultwarden instance at a subpath with `vaultwarden_path_prefix`. When using the path prefix, Vaultwarden will be available at `https://example.com/PATH_PREFIX`, while opening the home page URL (/) returns a 404 HTTP error. Refer to [this page](https://github.com/dani-garcia/vaultwarden/wiki/Hardening-Guide#hiding-under-a-subdir) on the official documentation for details.
+> For additional security, it is recommended to host the Redmine instance at a subpath with `redmine_path_prefix`. When using the path prefix, Redmine will be available at `https://example.com/PATH_PREFIX`, while opening the home page URL (/) returns a 404 HTTP error. Refer to [this page](https://github.com/dani-garcia/redmine/wiki/Hardening-Guide#hiding-under-a-subdir) on the official documentation for details.
 
 ### Setting a random string for admin secret (optional)
 
 You also need to set a random string used as administration secret to access the `/admin` section. To do so, add the following configuration to your `vars.yml` file. The value can be generated with `pwgen -s 64 1` or in another way.
 
 ```yaml
-vaultwarden_config_admin_token: YOUR_SECRET_KEY_HERE
+redmine_config_admin_token: YOUR_SECRET_KEY_HERE
 ```
 
 Removing the line will disable the `/admin` section.
@@ -82,17 +82,17 @@ Removing the line will disable the `/admin` section.
 
 #### Specify database (optional)
 
-You can specify a database used by Vaultwarden. By default it is configured to use Postgres.
+You can specify a database used by Redmine. By default it is configured to use Postgres.
 
 To use SQLite, add the following configuration to your `vars.yml` file:
 
 ```yaml
-vaultwarden_database_type: sqlite
+redmine_database_type: sqlite
 ```
 
-Set `mysql` to use a MySQL compatible database. The SQLite database is stored in the directory specified with `vaultwarden_data_path`.
+Set `mysql` to use a MySQL compatible database. The SQLite database is stored in the directory specified with `redmine_data_path`.
 
-For other settings, check variables such as `vaultwarden_database_*` on [`defaults/main.yml`](../defaults/main.yml).
+For other settings, check variables such as `redmine_database_*` on [`defaults/main.yml`](../defaults/main.yml).
 
 #### Configuring connection to the database server (optional)
 
@@ -100,10 +100,10 @@ By default the role is configured to establish the connection to the database se
 
 ```yaml
 # Specify the path to the MySQL compatible server's Unix socket path on the host (bind-mount source)
-vaultwarden_database_mysql_socket_path_host: ""
+redmine_database_mysql_socket_path_host: ""
 
 # Specify the path to the Postgres Unix socket path on the host (bind-mount source)
-vaultwarden_database_postgres_socket_path_host: ""
+redmine_database_postgres_socket_path_host: ""
 ```
 
 Setting it enables to connect to the database server via Unix socket mounted in the container.
@@ -112,10 +112,10 @@ If TCP connection is preferred, connection via the Unix socket can be disabled b
 
 ```yaml
 # Disable the connection to the MySQL compatible server via a Unix socket
-vaultwarden_database_mysql_socket_enabled: false
+redmine_database_mysql_socket_enabled: false
 
 # Disable the connection to the Postgres server via a Unix socket
-vaultwarden_database_postgres_socket_enabled: false
+redmine_database_postgres_socket_enabled: false
 ```
 
 ### Enabling user registration (optional)
@@ -123,15 +123,15 @@ vaultwarden_database_postgres_socket_enabled: false
 By default the role is configured to disable user registration. You can enable it by adding the following configuration to your `vars.yml` file:
 
 ```yaml
-vaultwarden_config_signups_enabled: true
+redmine_config_signups_enabled: true
 ```
 
 ### Enabling user verification (optional)
 
-To require email address verification before users can log in to the Vaultwarden instance, add the following configuration to your `vars.yml` file:
+To require email address verification before users can log in to the Redmine instance, add the following configuration to your `vars.yml` file:
 
 ```yaml
-vaultwarden_config_signups_verify: true
+redmine_config_signups_verify: true
 ```
 
 >[!NOTE]
@@ -143,22 +143,22 @@ To configure a SMTP mailer, add the following configuration to your `vars.yml` f
 
 ```yaml
 # Specify SMTP server hostname
-vaultwarden_config_smtp_host: ""
+redmine_config_smtp_host: ""
 
 # Specify SMTP server port number
-vaultwarden_config_smtp_port: 587
+redmine_config_smtp_port: 587
 
 # Specify SMTP server username
-vaultwarden_config_smtp_username: ""
+redmine_config_smtp_username: ""
 
 # Specify SMTP server password
-vaultwarden_config_smtp_password: ""
+redmine_config_smtp_password: ""
 
 # Specify the email address that emails will be sent from
-vaultwarden_config_smtp_from: ""
+redmine_config_smtp_from: ""
 
 # Specify the SMTP Auth Type
-vaultwarden_config_smtp_security: starttls
+redmine_config_smtp_security: starttls
 ```
 
 >[!WARNING]
@@ -170,9 +170,9 @@ There are some additional things you may wish to configure about the service.
 
 Take a look at:
 
-- [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `vaultwarden_environment_variables_additional_variables` variable
+- [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `redmine_environment_variables_additional_variables` variable
 
-Refer to [the official documentation](https://github.com/dani-garcia/vaultwarden/blob/main/.env.template) for a complete list of Vaultwarden's config options that you can put in `vaultwarden_environment_variables_additional_variables`.
+Refer to [the official documentation](https://github.com/dani-garcia/redmine/blob/main/.env.template) for a complete list of Redmine's config options that you can put in `redmine_environment_variables_additional_variables`.
 
 ## Installing
 
@@ -186,25 +186,25 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 ## Usage
 
-After running the command for installation, Vaultwarden becomes available at the specified hostname like `https://example.com`.
+After running the command for installation, Redmine becomes available at the specified hostname like `https://example.com`.
 
-To get started, open the URL `https://example.com/PATH_PREFIX/admin` with a web browser to create an account. Note the URL is accessible with an admin token, as specified with `vaultwarden_config_admin_token` on your `vars.yml` file.
+To get started, open the URL `https://example.com/PATH_PREFIX/admin` with a web browser to create an account. Note the URL is accessible with an admin token, as specified with `redmine_config_admin_token` on your `vars.yml` file.
 
-If you hadn't enabled the `/admin` feature (by defining `vaultwarden_config_admin_token`), you would:
+If you hadn't enabled the `/admin` feature (by defining `redmine_config_admin_token`), you would:
 
 - **either** need to do so and re-run the playbook
-- **or** to enable public registration (`vaultwarden_config_signups_enabled: true`) at least temporarily.
+- **or** to enable public registration (`redmine_config_signups_enabled: true`) at least temporarily.
 
 ## Troubleshooting
 
 ### Check the service's logs
 
-You can find the logs in [systemd-journald](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html) by logging in to the server with SSH and running `journalctl -fu vaultwarden` (or how you/your playbook named the service, e.g. `mash-vaultwarden`).
+You can find the logs in [systemd-journald](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html) by logging in to the server with SSH and running `journalctl -fu redmine` (or how you/your playbook named the service, e.g. `mash-redmine`).
 
 #### Increase logging verbosity
 
 If you want to increase the verbosity, add the following configuration to your `vars.yml` file:
 
 ```yaml
-vaultwarden_config_log_level: debug
+redmine_config_log_level: debug
 ```
