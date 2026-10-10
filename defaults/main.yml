@@ -357,9 +357,9 @@ redmine_max_concurrent_ajax_uploads: 10
 # Specify SMTP server configuration
 redmine_email_delivery_smtp_settings_address: ""
 redmine_email_delivery_smtp_settings_port: 25
-redmine_email_delivery_smtp_settings_authentication: ~
 redmine_email_delivery_smtp_user_name: ~
 redmine_email_delivery_smtp_password: ~
+redmine_email_delivery_smtp_settings_authentication: ~
 
 # Default Redmine configuration template which covers the generic use case.
 # You can customize it by controlling the various variables inside it.

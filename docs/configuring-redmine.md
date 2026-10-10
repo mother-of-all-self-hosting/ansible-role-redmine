@@ -126,22 +126,19 @@ To configure a SMTP mailer, add the following configuration to your `vars.yml` f
 
 ```yaml
 # Specify SMTP server hostname
-redmine_config_smtp_host: ""
+redmine_email_delivery_smtp_settings_address: ""
 
 # Specify SMTP server port number
-redmine_config_smtp_port: 587
+redmine_email_delivery_smtp_settings_port: 587
 
 # Specify SMTP server username
-redmine_config_smtp_username: ""
+redmine_email_delivery_smtp_user_name: ""
 
 # Specify SMTP server password
-redmine_config_smtp_password: ""
-
-# Specify the email address that emails will be sent from
-redmine_config_smtp_from: ""
+redmine_email_delivery_smtp_password: ""
 
 # Specify the SMTP Auth Type
-redmine_config_smtp_security: starttls
+redmine_email_delivery_smtp_settings_authentication: ""
 ```
 
 >[!WARNING]
