@@ -65,15 +65,20 @@ redmine_hostname: "example.com"
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
-### Setting a random string for admin secret (optional)
+### Set random strings for secrets
 
-You also need to set a random string used as administration secret to access the `/admin` section. To do so, add the following configuration to your `vars.yml` file. The value can be generated with `pwgen -s 64 1` or in another way.
+You also need to set random strings for secret keys and a session encryption token. To do so, add the following configuration to your `vars.yml` file. The values can be generated with `pwgen -s 64 1` or in another way.
 
 ```yaml
-redmine_config_admin_token: YOUR_SECRET_KEY_HERE
-```
+# Specify secret key base
+redmine_secret_key_base: ""
 
-Removing the line will disable the `/admin` section.
+# Specify session encryption token
+redmine_secret_token: ""
+
+# Specify base data secret key
+redmine_database_cipher_key: ""
+```
 
 ### Configuring database
 
