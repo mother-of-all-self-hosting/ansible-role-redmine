@@ -21,11 +21,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 # Setting up Redmine
 
-This is an [Ansible](https://www.ansible.com/) role which installs [Redmine](https://github.com/dani-garcia/redmine) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
+This is an [Ansible](https://www.ansible.com/) role which installs [Redmine](https://redmine.org/) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
 
-Redmine is an unofficial [Bitwarden](https://bitwarden.com/) compatible server.
+Redmine is a project management web application.
 
-See the project's [documentation](https://github.com/dani-garcia/redmine/blob/main/README.md) to learn what Redmine does and why it might be useful to you.
+See the project's [documentation](https://www.redmine.org/projects/redmine/wiki) to learn what Redmine does and why it might be useful to you.
 
 ## Prerequisites
 
@@ -120,6 +120,14 @@ redmine_database_mysql_socket_enabled: false
 redmine_database_postgres_socket_enabled: false
 ```
 
+### Installing build tools in the container image (optional)
+
+If you'll be installing Redmine plugins which pull Ruby gems compiling native code, add the following configuration to your `vars.yml` file to install build tools in the container image:
+
+```yaml
+redmine_container_image_customizations_build_tools_installation_enabled: true
+```
+
 ### Configuring the mailer (optional)
 
 To configure a SMTP mailer, add the following configuration to your `vars.yml` file as below (adapt to your needs):
@@ -152,8 +160,6 @@ Take a look at:
 
 - [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can override settings (even those that don't have dedicated playbook variables) using the `redmine_environment_variables_additional_variables` variable
 
-Refer to [the official documentation](https://github.com/dani-garcia/redmine/blob/main/.env.template) for a complete list of Redmine's config options that you can put in `redmine_environment_variables_additional_variables`.
-
 ## Installing
 
 After configuring the playbook, run the installation command of your playbook as below:
@@ -168,7 +174,7 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, Redmine becomes available at the specified hostname like `https://example.com`.
 
-To get started, open the URL `https://example.com/PATH_PREFIX/admin` with a web browser to create an account.
+To get started, open the URL with a web browser to log in to the instance with the administrator account, registered automatically on the initial run. Its credentials can be found at <https://hub.docker.com/_/redmine#accessing-the-application>. When logging in, you are required to reset the default password.
 
 ### Take over the `admin` account immediately
 
