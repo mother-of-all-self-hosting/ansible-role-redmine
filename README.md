@@ -19,12 +19,6 @@ Check [`defaults/main.yml`](defaults/main.yml) for the full list of supported op
 
 💡 For an Ansible playbook which integrates this role and makes it easier to use, see the [Mother-of-All-Self-Hosting Ansible playbook](https://github.com/mother-of-all-self-hosting/mash-playbook).
 
-## Notes on some of the settings
-
-### Database
-
-`redmine_database_type` has to be set explicitly; the role fails validation otherwise. Be aware that the upstream image quietly writes a `config/database.yml` of its own and falls back to a SQLite database whenever it does not find one, so a misconfigured instance still looks perfectly healthy from the outside. The Molecule scenarios assert against exactly that fallback — refer to [`molecule/README.md`](./molecule/README.md).
-
 ## Development
 
 ### pre-commit

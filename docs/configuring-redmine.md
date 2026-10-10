@@ -29,7 +29,7 @@ See the project's [documentation](https://github.com/dani-garcia/redmine/blob/ma
 
 ## Prerequisites
 
-To run a Redmine instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server, [Postgres](https://www.postgresql.org/), or [SQLite](https://www.sqlite.org/). The SQLite database file will be automatically created by the service if it is enabled.
+To run a Redmine instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server, [Postgres](https://www.postgresql.org/), [SQLite](https://www.sqlite.org/), or SQL Server.
 
 If you are looking for Ansible roles for a MySQL compatible server or Postgres, you can check out [ansible-role-mariadb](https://github.com/mother-of-all-self-hosting/ansible-role-mariadb) and [ansible-role-postgres](https://github.com/mother-of-all-self-hosting/ansible-role-postgres), both of which are maintained by the [Mother-of-All-Self-Hosting (MASH)](https://github.com/mother-of-all-self-hosting) team.
 
@@ -77,17 +77,17 @@ Removing the line will disable the `/admin` section.
 
 ### Configuring database
 
-#### Specify database (optional)
+#### Specify database
 
-You can specify a database used by Redmine. By default it is configured to use Postgres.
+It is necessary to select database used by Redmine from a MySQL compatible database, Postgres, SQLite, and SQL server.
 
-To use SQLite, add the following configuration to your `vars.yml` file:
+To use Postgres, add the following configuration to your `vars.yml` file:
 
 ```yaml
-redmine_database_type: sqlite
+redmine_database_type: postgres
 ```
 
-Set `mysql` to use a MySQL compatible database. The SQLite database is stored in the directory specified with `redmine_data_path`.
+Set `mysql` to use a MySQL compatible database and `sqlite` to use SQLite, respectively. The SQLite database is stored in the directory specified with `redmine_data_path`.
 
 For other settings, check variables such as `redmine_database_*` on [`defaults/main.yml`](../defaults/main.yml).
 
