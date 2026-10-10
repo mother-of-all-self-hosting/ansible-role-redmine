@@ -65,9 +65,6 @@ redmine_hostname: "example.com"
 
 After adjusting the hostname, make sure to adjust your DNS records to point the domain to your server.
 
->[!NOTE]
-> For additional security, it is recommended to host the Redmine instance at a subpath with `redmine_path_prefix`. When using the path prefix, Redmine will be available at `https://example.com/PATH_PREFIX`, while opening the home page URL (/) returns a 404 HTTP error. Refer to [this page](https://github.com/dani-garcia/redmine/wiki/Hardening-Guide#hiding-under-a-subdir) on the official documentation for details.
-
 ### Setting a random string for admin secret (optional)
 
 You also need to set a random string used as administration secret to access the `/admin` section. To do so, add the following configuration to your `vars.yml` file. The value can be generated with `pwgen -s 64 1` or in another way.
@@ -117,25 +114,6 @@ redmine_database_mysql_socket_enabled: false
 # Disable the connection to the Postgres server via a Unix socket
 redmine_database_postgres_socket_enabled: false
 ```
-
-### Enabling user registration (optional)
-
-By default the role is configured to disable user registration. You can enable it by adding the following configuration to your `vars.yml` file:
-
-```yaml
-redmine_config_signups_enabled: true
-```
-
-### Enabling user verification (optional)
-
-To require email address verification before users can log in to the Redmine instance, add the following configuration to your `vars.yml` file:
-
-```yaml
-redmine_config_signups_verify: true
-```
-
->[!NOTE]
-> When enabled, settings for a SMTP mailer are required to be specified.
 
 ### Configuring the mailer (optional)
 
@@ -188,23 +166,18 @@ If you use the MASH playbook, the shortcut commands with the [`just` program](ht
 
 After running the command for installation, Redmine becomes available at the specified hostname like `https://example.com`.
 
-To get started, open the URL `https://example.com/PATH_PREFIX/admin` with a web browser to create an account. Note the URL is accessible with an admin token, as specified with `redmine_config_admin_token` on your `vars.yml` file.
+To get started, open the URL `https://example.com/PATH_PREFIX/admin` with a web browser to create an account.
 
-If you hadn't enabled the `/admin` feature (by defining `redmine_config_admin_token`), you would:
+### Take over the `admin` account immediately
 
-- **either** need to do so and re-run the playbook
-- **or** to enable public registration (`redmine_config_signups_enabled: true`) at least temporarily.
+Redmine flags the account as having to change its password at first login, so whoever logs in first is the one who gets to set the real password. It is recommended to **log in and change the password before pointing anyone at the instance.**
+
+### Enable the REST API if you need it
+
+Redmine's REST API is disabled by default and is turned on under *Administration → Settings → API*.
 
 ## Troubleshooting
 
 ### Check the service's logs
 
 You can find the logs in [systemd-journald](https://www.freedesktop.org/software/systemd/man/systemd-journald.service.html) by logging in to the server with SSH and running `journalctl -fu redmine` (or how you/your playbook named the service, e.g. `mash-redmine`).
-
-#### Increase logging verbosity
-
-If you want to increase the verbosity, add the following configuration to your `vars.yml` file:
-
-```yaml
-redmine_config_log_level: debug
-```
