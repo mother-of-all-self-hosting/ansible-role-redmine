@@ -84,7 +84,7 @@ redmine_database_cipher_key: ""
 
 #### Specify database
 
-It is necessary to select database used by Redmine from a MySQL compatible database, Postgres, SQLite, and SQL server.
+Redmine can use either a MySQL compatible database, Postgres, SQLite, or SQL server, and you need to choose one.
 
 To use Postgres, add the following configuration to your `vars.yml` file:
 
