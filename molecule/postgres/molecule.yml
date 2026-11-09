@@ -82,8 +82,8 @@ provisioner:
 
         # Variables required for Redmine to connect to the Postgres database (via Unix socket)
         redmine_database_type: postgres
-        redmine_database_postgres_username: my_database_username
-        redmine_database_postgres_password: my_database_password
+        redmine_database_postgres_username: /#@my_database_username?%
+        redmine_database_postgres_password: /#@my_database_password?%
         redmine_database_name: redmine
         redmine_database_postgres_socket_enabled: true
         redmine_database_postgres_socket_path_host: "{{ postgres_run_path }}"

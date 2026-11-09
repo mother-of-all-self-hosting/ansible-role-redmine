@@ -82,8 +82,8 @@ provisioner:
 
         # Variables required for Redmine to connect to the MariaDB database (via Unix socket)
         redmine_database_type: mysql
-        redmine_database_mysql_username: my_database_username
-        redmine_database_mysql_password: my_database_password
+        redmine_database_mysql_username: /#@my_database_username?%
+        redmine_database_mysql_password: /#@my_database_password?%
         redmine_database_name: redmine
         redmine_database_mysql_socket_enabled: true
         redmine_database_mysql_socket_path_host: "{{ mariadb_run_path }}"
