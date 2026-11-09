@@ -21,7 +21,7 @@ traefik.http.middlewares.{{ redmine_identifier }}-basic-auth.basicauth.users={{ 
 {% endif %}
 
 {% if redmine_container_labels_traefik_path_prefix != '/' %}
-traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.regex=^({{ redmine_container_labels_traefik_path_prefix | quote }})$
+traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.regex=^(https?://[^/]+{{ redmine_container_labels_traefik_path_prefix | regex_escape }})$
 traefik.http.middlewares.{{ redmine_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
 {% set middlewares = middlewares + [redmine_identifier + '-slashless-redirect'] %}
 {% endif %}
