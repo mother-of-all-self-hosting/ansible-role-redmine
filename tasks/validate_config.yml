@@ -32,9 +32,6 @@
   with_items:
     - redmine_uid
     - redmine_gid
-    - redmine_hostname
-    - redmine_path_prefix
-    - redmine_container_network
     - redmine_database_type
     - redmine_secret_key_base
     - redmine_secret_token
