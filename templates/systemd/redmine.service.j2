@@ -69,9 +69,11 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       {{ arg }} \
       {% endfor %}
 
+{% if redmine_container_network != 'host' %}
 {% for network in redmine_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ redmine_identifier }}
 {% endfor %}
+{% endif %}
 
 ExecStart={{ devture_systemd_docker_base_host_command_docker }} start --attach {{ redmine_identifier }}
 
